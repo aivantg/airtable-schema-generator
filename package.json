@@ -1,0 +1,13 @@
+{
+  "name": "airtable",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "dotenv-safe": "^8.2.0",
+    "nightmare": "^3.0.0"
+  }
+}
