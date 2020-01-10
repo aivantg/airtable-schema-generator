@@ -22,6 +22,8 @@ The first file is a simplified JSON object representing your airtable base. The 
 
 You can edit the `schema.json` to add a `lookupFields` attribute to each table object to specify attributes that you want to create a `getRecordsByAttribute` helper function for. In future runs of this script, it will preserve any `lookupFields` you have, so be sure to save your customized `schema.json` for future runs!
 
-## Credit
+## Notes
 
 Airtable Schema Downloading Code Credit: https://github.com/cape-io/airtable-schema
+
+This generator was made specifically for this a Blueprint project. Learn more about what we do here: https://calblueprint.org/
