@@ -1,6 +1,6 @@
-# airtable-schema
+# airtable-schema-generators
 
-Simple script to download an Airtable schema, and generate schema file + request helpers!
+Simple script to download an Airtable schema, and generate schema file, constants, and request helpers!
 
 ## Setup
 
