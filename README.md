@@ -8,13 +8,13 @@ Clone the repository and run `npm install` inside the repo
 
 `git clone https://github.com/aivantg/airtable-schema.git && cd airtable-schema && npm install`
 
-## Create a .env
+### Create a .env
 
 Create a file called `.env` (identical to `.env.example`) and fill in the values with your airtable account email and password, as well as your Airtable Base ID. You can find your Base ID in the API URL: airtable.com/`{baseId}`/api/docs.
 
 Make sure you have password enabled on your Airtable account.
 
-## npm start
+## Running the script
 
 Running `npm start` will open an electron app browser window that will fill in your username and password. Once the api page loads it will output 3 files: `schema.json`, `request.js`, and `schema.js`.
 
