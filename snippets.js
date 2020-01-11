@@ -23,7 +23,7 @@ module.exports = {
 
 */
 
-import { Tables, Columns } from './schema.js';
+import { Tables, Columns } from './schema';
 import {
   createRecord,
   updateRecord,
@@ -67,14 +67,14 @@ export const get${tableName}ById = async id => {
 };
 
 export const getAll${tableName}s = async () => { 
-  return getAllRecords(${tableName});
+  return getAllRecords(Tables.${tableName});
 };
 `;
     if (lookupFields) {
       lookupFields.forEach(field => {
         let cleanName = cleanColumnName(field);
         result += `
-export const get${tableName}By${cleanName} = async (id, value) => { 
+export const get${tableName}sBy${cleanName} = async value => { 
     return getRecordsByAttribute(Tables.${tableName}, Columns.${tableName}.${cleanName}, value);
 };
 `;

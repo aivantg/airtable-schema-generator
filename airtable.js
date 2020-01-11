@@ -2,6 +2,8 @@
   Helper functions that makes airtable API calls directly
 
   Generated request.js file wraps around this file to provide simple CRUD helpers
+
+  Written by cape-io: https://github.com/cape-io/airtable-schema
 */
 
 import Airtable from 'airtable';
