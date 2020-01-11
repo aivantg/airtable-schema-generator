@@ -1,6 +1,6 @@
-# airtable-schema
+# airtable-schema-generators
 
-Simple script to download an Airtable schema, and generate schema file + request helpers!
+Simple script to download an Airtable schema, and generate schema file, constants, and request helpers!
 
 ## Setup
 
@@ -8,13 +8,13 @@ Clone the repository and run `npm install` inside the repo
 
 `git clone https://github.com/aivantg/airtable-schema.git && cd airtable-schema && npm install`
 
-## Create a .env
+### Create a .env
 
 Create a file called `.env` (identical to `.env.example`) and fill in the values with your airtable account email and password, as well as your Airtable Base ID. You can find your Base ID in the API URL: airtable.com/`{baseId}`/api/docs.
 
 Make sure you have password enabled on your Airtable account.
 
-## npm start
+## Running the script
 
 Running `npm start` will open an electron app browser window that will fill in your username and password. Once the api page loads it will output 3 files: `schema.json`, `request.js`, and `schema.js`.
 
@@ -22,6 +22,16 @@ The first file is a simplified JSON object representing your airtable base. The 
 
 You can edit the `schema.json` to add a `lookupFields` attribute to each table object to specify attributes that you want to create a `getRecordsByAttribute` helper function for. In future runs of this script, it will preserve any `lookupFields` you have, so be sure to save your customized `schema.json` for future runs!
 
-## Credit
+## Screenshots
+
+![image](https://user-images.githubusercontent.com/5147486/72138426-7286e780-3352-11ea-8582-f6010de2c390.png)
+Auto-generated `request.js` and `schema.js`
+
+![image](https://user-images.githubusercontent.com/5147486/72138470-82063080-3352-11ea-91ab-2dffdd074dd4.png)
+Sample customized `schema.json` and resulting functions in `request.js`
+
+## Notes
 
 Airtable Schema Downloading Code Credit: https://github.com/cape-io/airtable-schema
+
+This generator was made specifically for this a Blueprint project. Learn more about what we do here: https://calblueprint.org/
