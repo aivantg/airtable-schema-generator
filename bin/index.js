@@ -1,15 +1,17 @@
 #! /usr/bin/env node
 const fetchSchema = require('../lib/scraper');
 const snippets = require('../lib/snippets');
-const { writeFile, readFileSync, existsSync } = require('fs');
+const { writeFile, readFileSync, existsSync, mkdirSync } = require('fs');
 const { writeJson } = require('fs-extra');
 const path = require('path');
-require('dotenv-safe').config({ path: './.airtable-schema-generator.env' });
+require('dotenv').config({
+  path: path.resolve(__dirname, '.airtable-schema-generator.env')
+});
 
 packageInfo = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json')));
 settings = packageInfo['airtable-schema-generator'];
-const inputFolder = '';
-const outputFolder = '';
+let inputFolder = '';
+let outputFolder = '';
 if (settings && settings.input && settings.output) {
   inputFolder = settings.input;
   outputFolder = settings.output;
@@ -24,6 +26,16 @@ if (settings && settings.input && settings.output) {
 
 async function main() {
   // Use Electron to fetch schema from API Docs
+  if (
+    !process.env.AIRTABLE_BASE_ID ||
+    !process.env.AIRTABLE_EMAIL ||
+    !process.env.AIRTABLE_PASSWORD
+  ) {
+    console.log(
+      'Could not find all necessary airtable env vars. Please be sure to add AIRTABLE_BASE_ID, AIRTABLE_EMAIL, and AIRTABLE_PASSWORD environment variables in .airtable-schema-generator.env'
+    );
+    return;
+  }
   let schema = await fetchSchema({
     email: process.env.AIRTABLE_EMAIL,
     password: process.env.AIRTABLE_PASSWORD,
@@ -43,14 +55,14 @@ async function main() {
   const schemaMetadata = getMetadata();
 
   console.log(
-    '\nFound Metadata for tables: ' + Object.keys(schemaMetadata).toString()
+    'Found Metadata for tables: ' + Object.keys(schemaMetadata).toString()
   );
 
   // Generate outputs
   generateSchemaFile(simplifiedSchema);
   generateRequestFile(simplifiedSchema, schemaMetadata);
   generateConstantsFile(simplifiedSchema);
-  console.log('\nFinished Generating Files!');
+  console.log('Finished Generating Files!');
 }
 
 const errCatch = err => {
@@ -124,5 +136,3 @@ function generateConstantsFile(schema) {
 
   writeFile(savePath, fileContents, errCatch);
 }
-
-main();
