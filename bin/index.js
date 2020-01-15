@@ -1,9 +1,26 @@
-const fetchSchema = require('./scraper');
-const snippets = require('./snippets');
+#! /usr/bin/env node
+const fetchSchema = require('../lib/scraper');
+const snippets = require('../lib/snippets');
 const { writeFile, readFileSync, existsSync } = require('fs');
 const { writeJson } = require('fs-extra');
 const path = require('path');
-require('dotenv-safe').config();
+require('dotenv-safe').config({ path: './.airtable-schema-generator.env' });
+
+packageInfo = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json')));
+settings = packageInfo['airtable-schema-generator'];
+const inputFolder = '';
+const outputFolder = '';
+if (settings && settings.input && settings.output) {
+  inputFolder = settings.input;
+  outputFolder = settings.output;
+  main();
+} else {
+  console.log("Couldn't find Input and Output Folder Path in Settings Object:");
+  console.log(settings);
+  console.log(
+    "Please add appropriate values for 'input' and 'output' to package.json under 'airtable-schema-generator' key."
+  );
+}
 
 async function main() {
   // Use Electron to fetch schema from API Docs
@@ -12,6 +29,8 @@ async function main() {
     password: process.env.AIRTABLE_PASSWORD,
     baseId: process.env.AIRTABLE_BASE_ID
   });
+
+  console.log('Retrieived Airtable Schema');
 
   // Simplify the schema objects to just include table names and columns
   let simplifiedSchema = Object.keys(schema).reduce((result, tableId) => {
@@ -23,11 +42,15 @@ async function main() {
   // Check for metadata input file
   const schemaMetadata = getMetadata();
 
+  console.log(
+    '\nFound Metadata for tables: ' + Object.keys(schemaMetadata).toString()
+  );
+
   // Generate outputs
   generateSchemaFile(simplifiedSchema);
   generateRequestFile(simplifiedSchema, schemaMetadata);
   generateConstantsFile(simplifiedSchema);
-  console.log('Finished Generating Files!');
+  console.log('\nFinished Generating Files!');
 }
 
 const errCatch = err => {
@@ -38,7 +61,7 @@ const errCatch = err => {
 
 // Return data from `input/schemaMeta.json` as object if exists
 function getMetadata() {
-  const metaPath = path.resolve(__dirname, 'input', 'schemaMeta.json');
+  const metaPath = path.resolve(__dirname, inputFolder, 'schemaMeta.json');
   let schemaMetadata = {};
   if (existsSync(metaPath)) {
     schemaMetadata = JSON.parse(readFileSync(metaPath));
@@ -47,13 +70,13 @@ function getMetadata() {
 }
 
 function generateSchemaFile(schema) {
-  const savePath = path.resolve(__dirname, 'output', 'schema.json');
+  const savePath = path.resolve(__dirname, outputFolder, 'schema.json');
   writeJson(savePath, schema, errCatch);
 }
 
 // Generate `request.js` based on schema and metadata
 function generateRequestFile(schema, metadata) {
-  let savePath = path.resolve(__dirname, 'output', 'request.js');
+  let savePath = path.resolve(__dirname, outputFolder, 'request.js');
   const tables = Object.keys(schema);
 
   // initialize file contents with header of `request.js`
@@ -77,7 +100,7 @@ function generateRequestFile(schema, metadata) {
 
 // Generate `schema.js` based on schema
 function generateConstantsFile(schema) {
-  let savePath = path.resolve(__dirname, 'output', 'schema.js');
+  let savePath = path.resolve(__dirname, outputFolder, 'schema.js');
   let fileContents = '';
   const tables = Object.keys(schema);
 
