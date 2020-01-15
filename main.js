@@ -41,7 +41,7 @@ function getMetadata() {
   const metaPath = path.resolve(__dirname, 'input', 'schemaMeta.json');
   let schemaMetadata = {};
   if (existsSync(metaPath)) {
-    schemaMetadata = JSON.parse(readFileSync(metaPathPath));
+    schemaMetadata = JSON.parse(readFileSync(metaPath));
   }
   return schemaMetadata;
 }
@@ -65,7 +65,10 @@ function generateRequestFile(schema, metadata) {
     fileContents += snippets[`${fn}RecordsHeader`];
     tables.forEach(tableName => {
       let cleanName = snippets.cleanTableName(tableName);
-      fileContents += snippets[`${fn}Record`](cleanName, metadata[tableName]);
+      fileContents += snippets[`${fn}Record`](
+        cleanName,
+        metadata[tableName] || {}
+      );
     });
   });
 
