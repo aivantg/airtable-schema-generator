@@ -8,7 +8,7 @@ require('dotenv').config({
   path: path.resolve(__dirname, '.airtable-schema-generator.env')
 });
 
-packageInfo = JSON.parse(readFileSync('./package.json')));
+packageInfo = JSON.parse(readFileSync('./package.json'));
 settings = packageInfo['airtable-schema-generator'];
 let inputFolder = '';
 let outputFolder = '';
