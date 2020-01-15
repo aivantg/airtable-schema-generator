@@ -22,7 +22,11 @@ or
 
 Create a file called `.airtable-schema-generator.env` (identical to `.env.example`) in the root of your project and fill in the values with your airtable account email and password, as well as your Airtable Base ID. You can find your Base ID in the API URL: airtable.com/`{baseId}`/api/docs.
 
-3. Configure the input and output folder
+3. Add new env file to gitignore
+
+Add the line `.airtable-schema-generator.env` to your `.gitignore` file
+
+4. Configure the input and output folder
 
 In your `package.json` add the following: 
 ```
@@ -33,7 +37,7 @@ In your `package.json` add the following:
 ```
 specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder
 
-4) Add convenient run script
+5. Add convenient run script
 
 Update your scripts object in `package.json` to include the following
 
