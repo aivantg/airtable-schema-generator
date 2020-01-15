@@ -6,7 +6,7 @@ const { writeJson } = require('fs-extra');
 const path = require('path');
 require('dotenv-safe').config({
   path: '.airtable-schema-generator.env',
-  example: path.resolve(__dirname, '.env.example')
+  example: path.resolve(__dirname, '../.env.example')
 });
 
 packageInfo = JSON.parse(readFileSync('./package.json'));
