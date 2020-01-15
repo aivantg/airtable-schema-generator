@@ -12,8 +12,8 @@ packageInfo = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json')));
 settings = packageInfo['airtable-schema-generator'];
 let inputFolder = '';
 let outputFolder = '';
-if (settings && settings.input && settings.output) {
-  inputFolder = settings.input;
+if (settings && settings.output) {
+  inputFolder = settings.input || '.';
   outputFolder = settings.output;
   main();
 } else {
