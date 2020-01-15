@@ -6,7 +6,7 @@ An NPM package with a script to download an Airtable schema, and generate schema
 
 This script open an electron app browser window and opens the Airtable API page for your base using your login credentials. Once the api page loads, the script generates 3 files: `schema.json`, `request.js`, and `schema.js`.
 
-The first file is a simplified JSON object representing your airtable base. The last two files work with the sample `airtable.js` file to create nice CRUD helpers and constants for a javascript project using Airtable. Note that the provided `airtable.js` example transforms records' column names to and from camel case and original airtable format for easy developing!
+The first file is a simplified JSON object representing your airtable base. The last two files work with the sample `airtable.js` file to create nice CRUD helpers and constants for a javascript project using Airtable. Copy over `airtable.js` to the same folder as the generated files to fully utilize the helpers. Note that the provided `airtable.js` example transforms records' column names to and from camel case and original airtable format for easy developing!
 
 Details on the design decisions behind the architecture can be found [here](https://www.notion.so/calblueprint/PP-Power-Airtable-Client-Side-6a1b6734af294ef88609a6d6d256ca3d).
 
