@@ -4,8 +4,9 @@ const snippets = require('../lib/snippets');
 const { writeFile, readFileSync, existsSync, mkdirSync } = require('fs');
 const { writeJson } = require('fs-extra');
 const path = require('path');
-require('dotenv').config({
-  path: path.resolve(__dirname, '.airtable-schema-generator.env')
+require('dotenv-safe').config({
+  path: '.airtable-schema-generator.env',
+  example: path.resolve(__dirname, '.env.example')
 });
 
 packageInfo = JSON.parse(readFileSync('./package.json'));
@@ -26,16 +27,6 @@ if (settings && settings.output) {
 
 async function main() {
   // Use Electron to fetch schema from API Docs
-  if (
-    !process.env.AIRTABLE_BASE_ID ||
-    !process.env.AIRTABLE_EMAIL ||
-    !process.env.AIRTABLE_PASSWORD
-  ) {
-    console.log(
-      'Could not find all necessary airtable env vars. Please be sure to add AIRTABLE_BASE_ID, AIRTABLE_EMAIL, and AIRTABLE_PASSWORD environment variables in .airtable-schema-generator.env'
-    );
-    return;
-  }
   let schema = await fetchSchema({
     email: process.env.AIRTABLE_EMAIL,
     password: process.env.AIRTABLE_PASSWORD,
@@ -73,7 +64,7 @@ const errCatch = err => {
 
 // Return data from `input/schemaMeta.json` as object if exists
 function getMetadata() {
-  const metaPath = path.resolve(__dirname, inputFolder, 'schemaMeta.json');
+  const metaPath = path.resolve(inputFolder, 'schemaMeta.json');
   let schemaMetadata = {};
   if (existsSync(metaPath)) {
     schemaMetadata = JSON.parse(readFileSync(metaPath));
@@ -82,13 +73,13 @@ function getMetadata() {
 }
 
 function generateSchemaFile(schema) {
-  const savePath = path.resolve(__dirname, outputFolder, 'schema.json');
+  const savePath = path.resolve(outputFolder, 'schema.json');
   writeJson(savePath, schema, errCatch);
 }
 
 // Generate `request.js` based on schema and metadata
 function generateRequestFile(schema, metadata) {
-  let savePath = path.resolve(__dirname, outputFolder, 'request.js');
+  let savePath = path.resolve(outputFolder, 'request.js');
   const tables = Object.keys(schema);
 
   // initialize file contents with header of `request.js`
@@ -112,7 +103,7 @@ function generateRequestFile(schema, metadata) {
 
 // Generate `schema.js` based on schema
 function generateConstantsFile(schema) {
-  let savePath = path.resolve(__dirname, outputFolder, 'schema.js');
+  let savePath = path.resolve(outputFolder, 'schema.js');
   let fileContents = '';
   const tables = Object.keys(schema);
 

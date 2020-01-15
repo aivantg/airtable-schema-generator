@@ -1,13 +1,13 @@
 {
   "name": "airtable-schema-generator",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "A helper script to scrape your airtable schema and generate helper utility files",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "dotenv": "^8.2.0",
+    "dotenv-safe": "^8.2.0",
     "nightmare": "^3.0.0"
   },
   "bin": {
