@@ -43,13 +43,13 @@ Update your scripts object in `package.json` to include the following
 
 ```
 "scripts": { 
-  "generateSchema": "generate-airtable-schema"
+  "generate-schema": "generate-airtable-schema"
 }
 ```
 
 ## Running the script
 
-Run `npm run generateSchema` to re-generate your utility functions every time your airtable base updates!
+Run `npm run generate-schema` to re-generate your utility functions every time your airtable base updates!
 
 ## Optional Inputs
 
