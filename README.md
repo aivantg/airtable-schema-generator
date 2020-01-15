@@ -1,29 +1,55 @@
 # airtable-schema-generators
 
-A simple script to download an Airtable schema, and generate schema file, constants, and request helpers! Details on the design decisions behind the architecture can be found [here](https://www.notion.so/calblueprint/PP-Power-Airtable-Client-Side-6a1b6734af294ef88609a6d6d256ca3d).
+An NPM package with a script to download an Airtable schema, and generate schema file, constants, and request helpers! 
 
+## What it does
 
-## Setup
+This script open an electron app browser window and opens the Airtable API page for your base using your login credentials. Once the api page loads, the script generates 3 files: `schema.json`, `request.js`, and `schema.js`.
 
-Clone the repository and run `npm install` inside the repo
+The first file is a simplified JSON object representing your airtable base. The last two files work with the sample `airtable.js` file to create nice CRUD helpers and constants for a javascript project using Airtable. Note that the provided `airtable.js` example transforms records' column names to and from camel case and original airtable format for easy developing!
 
-`git clone https://github.com/aivantg/airtable-schema.git && cd airtable-schema && npm install`
+Details on the design decisions behind the architecture can be found [here](https://www.notion.so/calblueprint/PP-Power-Airtable-Client-Side-6a1b6734af294ef88609a6d6d256ca3d).
 
-### Create a .env
+## Installation
 
-Create a file called `.env` (identical to `.env.example`) and fill in the values with your airtable account email and password, as well as your Airtable Base ID. You can find your Base ID in the API URL: airtable.com/`{baseId}`/api/docs.
+1. Add package as a dev dependency
 
-Make sure you have password enabled on your Airtable account.
+`npm install --save-dev airtable-schema-generator`
+or
+`yarn add -D airtable-schema-generator`
+
+2. Create a `.airtable-schema-generator.env` file.
+
+Create a file called `.airtable-schema-generator.env` (identical to `.env.example`) in the root of your project and fill in the values with your airtable account email and password, as well as your Airtable Base ID. You can find your Base ID in the API URL: airtable.com/`{baseId}`/api/docs.
+
+3. Configure the input and output folder
+
+In your `package.json` add the following: 
+```
+"airtable-schema-generator": { 
+  "input": "path/to/input/folder",
+  "output": "path/to/output/folder"
+}
+```
+specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder
+
+4) Add convenient run script
+
+Update your scripts object in `package.json` to include the following
+
+```
+"scripts": { 
+  "generateSchema": "generate-airtable-schema"
+}
+```
 
 ## Running the script
 
-Running `npm start` will open an electron app browser window that will fill in your username and password. Once the api page loads it will output 3 files: `schema.json`, `request.js`, and `schema.js`.
-
-The first file is a simplified JSON object representing your airtable base. The last two files work with the sample `airtable.js` file to create nice CRUD helpers and constants for a javascript project using Airtable. Note that  the provided `airtable.js` example transforms records' column names to and from camel case and original airtable format for easy developing!
+Run `npm run generateSchema` to re-generate your utility functions every time your airtable base updates!
 
 ## Optional Inputs
 
-Optionally, you can create a `schemaMeta.json` file inside the `input/` folder. This file lets you specify info about custom helper functions in `request.js`. Inside `schemaMeta.json` should be an object that has airtable tablenames as keys and metadata as values. Currently the only metada is `lookupFields` (explained below) but more can be added as needed. Sample Structure: 
+Optionally, you can create a `schemaMeta.json` file inside the folder you specify as `input`. This file lets you specify info about custom helper functions in `request.js`. Inside `schemaMeta.json` should be an object that has airtable tablenames as keys and metadata as values. Currently the only metada is `lookupFields` (explained below) but more can be added as needed. Sample Structure: 
 
 ```
 {
