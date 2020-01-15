@@ -71,7 +71,7 @@ export const create${tableName} = async record => {
     return createRecord(Tables.${tableName}, record)
 };
 `,
-  readRecord: (tableName, lookupFields) => {
+  readRecord: (tableName, { lookupFields }) => {
     let result = `
 export const get${tableName}ById = async id => { 
   return getRecordById(Tables.${tableName}, id);
