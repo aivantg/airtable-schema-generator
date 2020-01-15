@@ -1,11 +1,22 @@
 const cleanColumnName = name => {
-  return name
+  let cleanName = name
+    .toLowerCase()
     .split(' ')
-    .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+    .map(uppercaseFirstChar)
     .join('')
     .replace(/\(|\)|\s|"|'|\?/g, '');
+  return cleanName;
 };
+
 const cleanTableName = name => name.replace(/\(|\)|\s/g, '');
+
+const lowercaseFirstChar = s => {
+  return s.charAt(0).toLowerCase() + s.substring(1);
+};
+
+const uppercaseFirstChar = s => {
+  return s.charAt(0).toUpperCase() + s.substring(1);
+};
 
 module.exports = {
   cleanColumnName,
@@ -75,7 +86,9 @@ export const getAll${tableName}s = async () => {
         let cleanName = cleanColumnName(field);
         result += `
 export const get${tableName}sBy${cleanName} = async value => { 
-    return getRecordsByAttribute(Tables.${tableName}, Columns.${tableName}.${cleanName}, value);
+    return getRecordsByAttribute(Tables.${tableName}, Columns.${tableName}.${lowercaseFirstChar(
+          cleanName
+        )}, value);
 };
 `;
       });
@@ -105,7 +118,8 @@ export const delete${tableName} = async id => {
     let cleanName = cleanTableName(tableName);
     let result = `\t${cleanName}: {\n`;
     columns.forEach(c => {
-      let cleanName = cleanColumnName(c);
+      // Lowercase the clean name so follows JS conventions
+      let cleanName = lowercaseFirstChar(cleanColumnName(c));
       result += `\t\t${cleanName}: \`${c}\`,\n`;
     });
     result += '\t},\n';
