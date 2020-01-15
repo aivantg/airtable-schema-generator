@@ -1,6 +1,7 @@
 # airtable-schema-generators
 
-Simple script to download an Airtable schema, and generate schema file, constants, and request helpers!
+A simple script to download an Airtable schema, and generate schema file, constants, and request helpers! Details on the design decisions behind the architecture can be found [here](https://www.notion.so/calblueprint/PP-Power-Airtable-Client-Side-6a1b6734af294ef88609a6d6d256ca3d).
+
 
 ## Setup
 
@@ -18,17 +19,41 @@ Make sure you have password enabled on your Airtable account.
 
 Running `npm start` will open an electron app browser window that will fill in your username and password. Once the api page loads it will output 3 files: `schema.json`, `request.js`, and `schema.js`.
 
-The first file is a simplified JSON object representing your airtable base. The last two files work with the sample `airtable.js` file to create nice CRUD helpers and constants for a javascript project using Airtable.
+The first file is a simplified JSON object representing your airtable base. The last two files work with the sample `airtable.js` file to create nice CRUD helpers and constants for a javascript project using Airtable. Note that  the provided `airtable.js` example transforms records' column names to and from camel case and original airtable format for easy developing!
 
-You can edit the `schema.json` to add a `lookupFields` attribute to each table object to specify attributes that you want to create a `getRecordsByAttribute` helper function for. In future runs of this script, it will preserve any `lookupFields` you have, so be sure to save your customized `schema.json` for future runs!
+## Optional Inputs
+
+Optionally, you can create a `schemaMeta.json` file inside the `input/` folder. This file lets you specify info about custom helper functions in `request.js`. Inside `schemaMeta.json` should be an object that has airtable tablenames as keys and metadata as values. Currently the only metada is `lookupFields` (explained below) but more can be added as needed. Sample Structure: 
+
+```
+{
+  "User Login": {
+    "lookupFields": ["Email"]
+  },
+  "Announcement": {
+    "lookupFields": ["Project Group"]
+  }
+}
+
+```
+
+### Lookup Fields
+The `lookupFields` meta attribute specifies which fields you would like to create a custom `getRecordsByAttribute` helper function for. For example, one of the functions the above `schemaMeta.json` would create might look like:
+```
+export const getAnnouncementsByProjectGroup = async value => {
+  return getRecordsByAttribute(
+    Tables.Announcement,
+    Columns.Announcement.projectGroup,
+    value
+  );
+};
+```
+This is in addition to the two default "get" functions created. 
 
 ## Screenshots
 
 ![image](https://user-images.githubusercontent.com/5147486/72138426-7286e780-3352-11ea-8582-f6010de2c390.png)
 Auto-generated `request.js` and `schema.js`
-
-![image](https://user-images.githubusercontent.com/5147486/72138470-82063080-3352-11ea-91ab-2dffdd074dd4.png)
-Sample customized `schema.json` and resulting functions in `request.js`
 
 ## Notes
 
