@@ -9,10 +9,11 @@
 */
 
 import Airtable from 'airtable';
-import constants from '../../constants';
 import { Columns } from './schema';
 
-const { BASE_ID, ENDPOINT_URL, GRID_VIEW } = constants;
+const BASE_ID = 'REPLACE_BASE_ID';
+const VIEW = 'Grid view';
+const ENDPOINT_URL = 'https://api.airtable.com';
 
 const apiKey = process.env.REACT_APP_AIRTABLE_API_KEY;
 
@@ -24,27 +25,25 @@ Airtable.configure({
 const base = Airtable.base(BASE_ID);
 
 // Transformation Utilities
-const cleanTableName = name => name.replace(/\(|\)|\s/g, '');
 
-const transformRecordFromAirtableFormat = (record, tableName) => {
-  const table = cleanTableName(tableName);
-  // Invert columns so you can look up by Airtable Column Name
-  const columns = {};
+const fromAirtableFormat = (record, table) => {
+  // the `Columns` table in schema.js maps from JS name to Airtable name.
+  // Inverting this table lets us go the other way around
+  const invertedColumns = {};
   Object.keys(Columns[table]).forEach(key => {
-    columns[Columns[table][key]] = key;
+    invertedColumns[Columns[table][key]] = key;
   });
 
+  // Create a new object mapping each record attribute
   const newRecord = {};
   Object.keys(record).forEach(origName => {
-    const jsFormattedName = columns[origName];
+    const jsFormattedName = invertedColumns[origName];
     newRecord[jsFormattedName] = record[origName];
   });
-
   return newRecord;
 };
 
-const transformRecordToAirtableFormat = (record, tableName) => {
-  const table = cleanTableName(tableName);
+const toAirtableFormat = (record, table) => {
   const columns = Columns[table];
 
   const newRecord = {};
@@ -59,7 +58,7 @@ const transformRecordToAirtableFormat = (record, tableName) => {
 // Given a table and a record object, create a record on Airtable.
 function createRecord(table, record) {
   return new Promise(function(resolve, reject) {
-    const transformedRecord = transformRecordToAirtableFormat(record, table);
+    const transformedRecord = toAirtableFormat(record, table);
     base(table).create([{ fields: transformedRecord }], function(err, records) {
       if (err) {
         reject(err);
@@ -87,7 +86,7 @@ function getAllRecords(table) {
   return new Promise(function(resolve, reject) {
     base(table)
       .select({
-        view: GRID_VIEW
+        view: VIEW
       })
       .eachPage(
         function page(records, fetchNextPage) {
@@ -98,9 +97,7 @@ function getAllRecords(table) {
           }
 
           resolve(
-            records.map(record =>
-              transformRecordFromAirtableFormat(record.fields, table)
-            )
+            records.map(record => fromAirtableFormat(record.fields, table))
           );
 
           // To fetch the next page of records, call `fetchNextPage`.
@@ -126,7 +123,7 @@ function getRecordById(table, id) {
         return;
       }
 
-      resolve(transformRecordFromAirtableFormat(record.fields, table));
+      resolve(fromAirtableFormat(record.fields, table));
     });
   });
 }
@@ -140,7 +137,7 @@ function getRecordsByAttribute(table, fieldType, field) {
   return new Promise(function(resolve, reject) {
     base(table)
       .select({
-        view: GRID_VIEW,
+        view: VIEW,
         filterByFormula: `{${fieldType}}='${field}'`
       })
       .firstPage((err, records) => {
@@ -157,9 +154,7 @@ function getRecordsByAttribute(table, fieldType, field) {
         }
 
         resolve(
-          records.map(record =>
-            transformRecordFromAirtableFormat(record.fields, table)
-          )
+          records.map(record => fromAirtableFormat(record.fields, table))
         );
       });
   });
@@ -168,10 +163,7 @@ function getRecordsByAttribute(table, fieldType, field) {
 // Given a table and a record object, update a record on Airtable.
 function updateRecord(table, id, updatedRecord) {
   return new Promise(function(resolve, reject) {
-    const transformedRecord = transformRecordToAirtableFormat(
-      updatedRecord,
-      table
-    );
+    const transformedRecord = toAirtableFormat(updatedRecord, table);
     base(table).update(
       [
         {

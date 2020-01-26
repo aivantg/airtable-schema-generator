@@ -53,6 +53,7 @@ async function main() {
   generateSchemaFile(simplifiedSchema);
   generateRequestFile(simplifiedSchema, schemaMetadata);
   generateConstantsFile(simplifiedSchema);
+  generateAirtableFile(process.env.AIRTABLE_BASE_ID);
   console.log('Finished Generating Files!');
 }
 
@@ -70,6 +71,14 @@ function getMetadata() {
     schemaMetadata = JSON.parse(readFileSync(metaPath));
   }
   return schemaMetadata;
+}
+
+function generateAirtableFile(baseId) {
+  const airtablePath = path.resolve(__dirname, '../airtable.js');
+  const airtableContent = readFileSync(airtablePath);
+  const airtableOutput = airtableContent.replace('REPLACE_BASE_ID', baseId);
+  const savePath = path.resolve(outputFolder, 'airtable.js');
+  writeFile(savePath, airtableOutput, errCatch);
 }
 
 function generateSchemaFile(schema) {
