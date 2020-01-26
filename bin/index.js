@@ -76,7 +76,9 @@ function getMetadata() {
 function generateAirtableFile(baseId) {
   const airtablePath = path.resolve(__dirname, '../airtable.js');
   const airtableContent = readFileSync(airtablePath);
-  const airtableOutput = airtableContent.replace('REPLACE_BASE_ID', baseId);
+  const airtableOutput = airtableContent
+    .toString()
+    .replace('REPLACE_BASE_ID', baseId);
   const savePath = path.resolve(outputFolder, 'airtable.js');
   writeFile(savePath, airtableOutput, errCatch);
 }
