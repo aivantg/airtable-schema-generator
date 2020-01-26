@@ -1,8 +1,10 @@
 /* eslint no-restricted-imports: 0 */
 
 /*
-  Helper functions that makes airtable API calls directly
+  THIS IS A GENERATED FILE
+  Changes might be overwritten in the future, edit with caution!
 
+  Helper functions that makes airtable API calls directly
   Not meant to be called directly by functions outside of request.js
 
   If you're adding a new function: make sure you add a corresponding test (at least 1) for it in airtable.spec.js
