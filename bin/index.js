@@ -36,11 +36,7 @@ async function main() {
   console.log('Retrieived Airtable Schema');
 
   // Simplify the schema objects to just include table names and columns
-  let simplifiedSchema = Object.keys(schema).reduce((result, tableId) => {
-    let table = schema[tableId];
-    result[table.name] = { columns: table.columns.map(c => c.name) };
-    return result;
-  }, {});
+  let simplifiedSchema = simplifySchema(schema);
 
   // Check for metadata input file
   const schemaMetadata = getMetadata();
@@ -62,6 +58,20 @@ const errCatch = err => {
     console.log(err);
   }
 };
+
+// Simplify the full detailed schema into tables and column types
+function simplifySchema(schema) {
+  let simplifiedSchema = Object.keys(schema).reduce((result, tableId) => {
+    let table = schema[tableId];
+    result[table.name] = {
+      columns: table.columns.map(c => ({
+        type: c.type,
+        name: c.name
+      }))
+    };
+    return result;
+  }, {});
+}
 
 // Return data from `input/schemaMeta.json` as object if exists
 function getMetadata() {
