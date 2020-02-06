@@ -61,7 +61,7 @@ const errCatch = err => {
 
 // Simplify the full detailed schema into tables and column types
 function simplifySchema(schema) {
-  let simplifiedSchema = Object.keys(schema).reduce((result, tableId) => {
+  return Object.keys(schema).reduce((result, tableId) => {
     let table = schema[tableId];
     result[table.name] = {
       columns: table.columns.map(c => ({
