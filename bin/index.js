@@ -49,7 +49,10 @@ async function main() {
   generateSchemaFile(simplifiedSchema);
   generateRequestFile(simplifiedSchema, schemaMetadata);
   generateConstantsFile(simplifiedSchema);
-  generateAirtableFile(process.env.AIRTABLE_BASE_ID);
+  generateAirtableFile(
+    process.env.AIRTABLE_BASE_ID,
+    process.env.DEFAULT_VIEW || 'Grid view'
+  );
   console.log('Finished Generating Files!');
 }
 
@@ -83,12 +86,15 @@ function getMetadata() {
   return schemaMetadata;
 }
 
-function generateAirtableFile(baseId) {
+function generateAirtableFile(baseId, defaultView) {
   const airtablePath = path.resolve(__dirname, '../airtable.js');
   const airtableContent = readFileSync(airtablePath);
   const airtableOutput = airtableContent
     .toString()
     .replace('REPLACE_BASE_ID', baseId);
+  const airtableOutput = airtableContent
+    .toString()
+    .replace('REPLACE_VIEW', defaultView);
   const savePath = path.resolve(outputFolder, 'airtable.js');
   writeFile(savePath, airtableOutput, errCatch);
 }

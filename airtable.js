@@ -14,7 +14,7 @@ import Airtable from 'airtable';
 import { Columns } from './schema';
 
 const BASE_ID = 'REPLACE_BASE_ID';
-const VIEW = 'Grid view';
+const VIEW = 'REPLACE_VIEW';
 const ENDPOINT_URL = 'https://api.airtable.com';
 
 const apiKey = process.env.REACT_APP_AIRTABLE_API_KEY;
