@@ -1,6 +1,6 @@
 {
   "name": "airtable-schema-generator",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "description": "A helper script to scrape your airtable schema and generate helper utility files",
   "main": "index.js",
   "scripts": {
