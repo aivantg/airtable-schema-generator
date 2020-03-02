@@ -66,7 +66,6 @@ async function main() {
     'Found Metadata for tables: ' + Object.keys(schemaMetadata).toString()
   );
 
-  console.log(simplifiedSchema);
   // Generate outputs
   generateSchemaFile(simplifiedSchema);
   generateRequestFile(simplifiedSchema, schemaMetadata);
