@@ -24,7 +24,7 @@ let DEFAULT_VIEW = 'Grid view';
 if (settings && settings.output) {
   inputFolder = settings.input || '.';
   outputFolder = settings.output;
-  AIRTABLE_BASE_ID = settings.baseId | '';
+  AIRTABLE_BASE_ID = settings.baseId || '';
   DEFAULT_VIEW = settings.defaultView || 'Grid view';
   main();
 } else {
