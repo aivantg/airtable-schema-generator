@@ -82,10 +82,9 @@ function createRecord(table, record) {
   });
 }
 
-// TODO pagination?
-// TODO: current implementation only fetches the first page
 function getAllRecords(table) {
   return new Promise(function(resolve, reject) {
+    const allRecords = [];
     base(table)
       .select({
         view: VIEW
@@ -98,9 +97,7 @@ function getAllRecords(table) {
             return;
           }
 
-          resolve(
-            records.map(record => fromAirtableFormat(record.fields, table))
-          );
+          allRecords.push(...records);
 
           // To fetch the next page of records, call `fetchNextPage`.
           // If there are more records, `page` will get called again.
@@ -110,6 +107,10 @@ function getAllRecords(table) {
         function done(err) {
           if (err) {
             reject(err);
+          } else {
+            resolve(
+              allRecords.map(record => fromAirtableFormat(record.fields, table))
+            );
           }
         }
       );
