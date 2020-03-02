@@ -4,18 +4,28 @@ const snippets = require('../lib/snippets');
 const { writeFile, readFileSync, existsSync, mkdirSync } = require('fs');
 const { writeJson } = require('fs-extra');
 const path = require('path');
-require('dotenv-safe').config({
-  path: '.airtable-schema-generator.env',
-  example: path.resolve(__dirname, '../.env.example')
-});
+// require('dotenv-safe').config({
+//   path: '.airtable-schema-generator.env',
+//   example: path.resolve(__dirname, '../.env.example')
+// });
+
+const errCatch = err => {
+  if (err) {
+    console.log(err);
+  }
+};
 
 packageInfo = JSON.parse(readFileSync('./package.json'));
 settings = packageInfo['airtable-schema-generator'];
 let inputFolder = '';
 let outputFolder = '';
+let AIRTABLE_BASE_ID = '';
+let DEFAULT_VIEW = 'Grid view';
 if (settings && settings.output) {
   inputFolder = settings.input || '.';
   outputFolder = settings.output;
+  AIRTABLE_BASE_ID = settings.baseId | '';
+  DEFAULT_VIEW = settings.defaultView || 'Grid view';
   main();
 } else {
   console.log("Couldn't find Input and Output Folder Path in Settings Object:");
@@ -27,11 +37,22 @@ if (settings && settings.output) {
 
 async function main() {
   // Use Electron to fetch schema from API Docs
-  let schema = await fetchSchema({
-    email: process.env.AIRTABLE_EMAIL,
-    password: process.env.AIRTABLE_PASSWORD,
-    baseId: process.env.AIRTABLE_BASE_ID
-  });
+  // let schema = await fetchSchema({
+  //   email: process.env.AIRTABLE_EMAIL,
+  //   password: process.env.AIRTABLE_PASSWORD,
+  //   baseId: process.env.AIRTABLE_BASE_ID
+  // });
+
+  // Because nightmare stopped working :(
+  let schema = readSchemaFromFile();
+  if (!schema) {
+    const baseUrl = `https://airtable.com/login?continue=/${AIRTABLE_BASE_ID}/api/docs`;
+    const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`;
+    console.log(
+      `No Schema Found: Please create a schemaRaw.json file in the input folder.\n\n Navigate to this page in the browser: ${baseUrl} \n\nRun this script in the console:\n\n${script}\n\nThis will save the output to your clipboard. Open up schemaRaw.json and paste!`
+    );
+    return;
+  }
 
   console.log('Retrieived Airtable Schema');
 
@@ -45,22 +66,14 @@ async function main() {
     'Found Metadata for tables: ' + Object.keys(schemaMetadata).toString()
   );
 
+  console.log(simplifiedSchema);
   // Generate outputs
   generateSchemaFile(simplifiedSchema);
   generateRequestFile(simplifiedSchema, schemaMetadata);
   generateConstantsFile(simplifiedSchema);
-  generateAirtableFile(
-    process.env.AIRTABLE_BASE_ID,
-    process.env.DEFAULT_VIEW || 'Grid view'
-  );
+  generateAirtableFile(AIRTABLE_BASE_ID, DEFAULT_VIEW || 'Grid view');
   console.log('Finished Generating Files!');
 }
-
-const errCatch = err => {
-  if (err) {
-    console.log(err);
-  }
-};
 
 // Simplify the full detailed schema into tables and column types
 function simplifySchema(schema) {
@@ -86,14 +99,21 @@ function getMetadata() {
   return schemaMetadata;
 }
 
+function readSchemaFromFile() {
+  const schemaPath = path.resolve(inputFolder, 'schemaRaw.json');
+  let schema = undefined;
+  if (existsSync(schemaPath)) {
+    schema = JSON.parse(readFileSync(schemaPath));
+  }
+  return schema;
+}
+
 function generateAirtableFile(baseId, defaultView) {
   const airtablePath = path.resolve(__dirname, '../airtable.js');
   const airtableContent = readFileSync(airtablePath);
   const airtableOutput = airtableContent
     .toString()
-    .replace('REPLACE_BASE_ID', baseId);
-  const airtableOutput = airtableContent
-    .toString()
+    .replace('REPLACE_BASE_ID', baseId)
     .replace('REPLACE_VIEW', defaultView);
   const savePath = path.resolve(outputFolder, 'airtable.js');
   writeFile(savePath, airtableOutput, errCatch);
