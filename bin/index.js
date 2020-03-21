@@ -80,7 +80,11 @@ function simplifySchema(schema) {
     let table = schema[tableId];
     result[table.name] = {
       columns: table.columns.map(c => ({
-        type: c.type,
+        // Append relationship to foreign key type
+        type:
+          c.type === 'foreignKey'
+            ? c.type + c.typeOptions.relationship
+            : c.type,
         name: c.name
       }))
     };
