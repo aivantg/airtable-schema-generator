@@ -32,7 +32,6 @@ Options:
 In your `package.json` add the following: 
 ```
 "airtable-schema-generator": { 
-  "baseId": "<Airtable Base ID>",
   "mode": "<Desired Mode>",
   "output": "path/to/output/folder"
 }
@@ -48,15 +47,21 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 
 specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder.
 
-#### 3b) If using auto or auto-headless mode, create a `.airtable.env` file.
+#### 4) Create a `.env` file.
 
-Create a file called `.airtable.env` (identical to `.env.example`) in the root of your project and fill in the values with your airtable account email and password. This information is only saved on your computer in this hidden file.
+Create a file called `.env` (identical to `.env.example`) in the root of your project and fill in the values with your  Airtable Base ID. 
 
-#### 3c) Add new env file to gitignore
+If you already have a `.env`, you can add these keys to the existing `.env` file
 
-Add the line `.airtable.env` to your `.gitignore` file
+#### 4a) If using Auto mode, fill in airtable account email and password
 
-#### 4) Add convenient run script
+If you're using either "auto" or "auto-headless" mode, the generator needs your airtable username and password to login. This information is only saved on your computer in this hidden file. Add the two environment keys in `.auto-env.example` to your `.env` file from abovel
+
+#### 5) Add new env file to gitignore
+
+Add the line `.env` to your `.gitignore` file
+
+#### 6) Add convenient run script
 
 Update your scripts object in `package.json` to include the following
 
