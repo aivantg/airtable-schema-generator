@@ -90,7 +90,7 @@ async function main(settings) {
     );
   }
 
-  console.log('Retrieived Airtable Schema');
+  console.log('Retrieved Airtable Schema');
 
   // Simplify the schema objects to just include table names and columns
   let simplifiedSchema = simplifySchema(schema);
