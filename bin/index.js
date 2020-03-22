@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 const fetchSchema = require('../lib/scraper');
 const path = require('path');
-const { existsSync } = require('fs');
+const { existsSync, readFileSync } = require('fs');
 const {
   generateRequestFile,
   generateAirtableFile,
@@ -20,16 +20,17 @@ const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(t
 function readSettings() {
   const packageFile = readFileSync('./package.json');
   const settings = JSON.parse(packageFile)['airtable-schema-generator'];
+  console.log('Found settings');
+  console.log(settings);
 
   if (!settings || !settings.output || !settings.input || !settings.baseId) {
     console.log(
       "Couldn't find Input Folder Path, Output Folder Path and Base ID in Settings Object:"
     );
-    console.log(settings);
     console.log(
       "Please add appropriate values for 'baseId', 'input', and 'output' to package.json under 'airtable-schema-generator' key."
     );
-    throw 'Invalid package.json settings';
+    throw new Error('Invalid package.json settings');
   }
   return {
     outputFolder: settings.output,
@@ -76,9 +77,10 @@ async function main(settings) {
   // });
 
   // Because nightmare stopped working :(
-  let schema = readSchemaFromFile();
+  let schema = readSchemaFromFile(settings);
+  const baseUrl = `https://airtable.com/login?continue=/${settings.baseId}/api/docs`;
+
   if (!schema) {
-    const baseUrl = `https://airtable.com/login?continue=/${settings.baseId}/api/docs`;
     throw `No Schema Found: Please create a schemaRaw.json file in the input folder.\n\n Navigate to this page in the browser: ${baseUrl} \n\nRun this script in the console:\n\n${script}\n\nThis will save the output to your clipboard. Open up schemaRaw.json and paste!`;
   } else {
     console.log('Found Schema file in `schemaRaw.json` file');
