@@ -45,8 +45,6 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 `defaultView`: You can specify a default view to use for Read requests. Default is "Grid View"
 `schemaMeta`: Where your metadata for schema generation lives. Details below
 
-specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder.
-
 #### 4) Create a `.env` file.
 
 Create a file called `.env` (identical to `.env.example`) in the root of your project and fill in the values with your  Airtable Base ID. 
