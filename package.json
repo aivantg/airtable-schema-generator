@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "dotenv-safe": "^8.2.0",
-    "nightmare": "^3.0.0"
+    "puppeteer": "^2.1.1"
   },
   "bin": {
     "generate-airtable-schema": "bin/index.js"

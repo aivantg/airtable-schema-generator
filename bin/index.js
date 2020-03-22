@@ -8,18 +8,20 @@ const {
   generateSchemaFile
 } = require('../lib/generators');
 
+const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`;
+
 function readSettings() {
   const packageFile = readFileSync('./package.json');
   const settings = JSON.parse(packageFile)['airtable-schema-generator'];
   console.log('Found settings:');
   console.log(settings);
 
-  if (!settings || !settings.output || !settings.baseId) {
+  if (!settings || !settings.output || !settings.baseId || !settings.mode) {
     console.log(
-      "Couldn't find Input Folder Path, Output Folder Path and Base ID in Settings Object:"
+      "Couldn't find Input Folder Path, Output Folder Path, Mode, and Base ID in Settings Object:"
     );
     console.log(
-      "Please add appropriate values for 'baseId', 'input', and 'output' to package.json under 'airtable-schema-generator' key."
+      "Please add appropriate values for 'baseId', 'input', `mode`, and 'output' to package.json under 'airtable-schema-generator' key."
     );
     throw new Error('Invalid package.json settings');
   }
@@ -59,7 +61,7 @@ function simplifySchema(schema) {
 async function getSchemaFromAirtable(settings) {
   if (settings.mode === 'manual') {
     console.log(
-      '## Getting Schema using Manual mode ##\nWill look for `schemaRaw.json` in specified input folder...\n\n'
+      '\n## Getting Schema using Manual mode ##\nWill look for `schemaRaw.json` in specified input folder...\n\n'
     );
     const schema = readSchemaFromFile(settings);
     const baseUrl = `https://airtable.com/login?continue=/${settings.baseId}/api/docs`;
@@ -69,17 +71,17 @@ async function getSchemaFromAirtable(settings) {
     } else {
       console.log('Found Schema file in `schemaRaw.json` file');
       console.log(
-        'Make sure this is the latest schema. If you need to update the schema follow these instructions:\n\n'
+        '\n*** Make sure this is the latest schema ***\nIf you need to update the schema follow these instructions:\n\n'
       );
       console.log(
-        `Navigate to this page in the browser: ${baseUrl} \n\nRun this script in the console:\n\n${script}\n\nThis will save the output to your clipboard. Open up schemaRaw.json, delete everything, and paste!\n\n`
+        `1. Navigate to this page in the browser: ${baseUrl} \n2. Run this script in the console:\n\n${script}\n\nThis will save the output to your clipboard.\n3. Open up schemaRaw.json, delete everything, and paste!\n\n`
       );
       return schema;
     }
   } else {
     const mode = settings.mode === 'auto-headless' ? settings.mode : 'auto';
     console.log(
-      `## Getting Schema using #{mode} mode. Will fetch schema from airtable.com... ##\n${
+      `\n## Getting Schema using ${mode} mode. Will fetch schema from airtable.com... ##\n\n${
         mode === 'auto'
           ? 'Launching browser...'
           : 'Launching headless browser...'
@@ -96,7 +98,7 @@ async function getSchemaFromAirtable(settings) {
       email: process.env.AIRTABLE_EMAIL,
       password: process.env.AIRTABLE_PASSWORD,
       baseId: settings.baseId,
-      headless: mode
+      headless: mode.includes('headless')
     });
   }
 }
@@ -111,7 +113,7 @@ function readSchemaFromFile(settings) {
 }
 
 async function main(settings) {
-  const schema = getSchemaFromAirtable(settings);
+  const schema = await getSchemaFromAirtable(settings);
 
   console.log('Retrieived Airtable Schema');
   // Simplify the schema objects to just include table names and columns
