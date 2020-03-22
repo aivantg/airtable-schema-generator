@@ -74,9 +74,10 @@ Run `npm run generate-schema` to re-generate your utility functions every time y
 
 ## Important Assumptions
 
-This package makes assumptions of how you structure your Airtable:
-1. Table names are Singular
-2. Linked Record relationship is accurate (one-to-many vs one-to-one)
+This package makes assumptions of how you structure your Airtable. We note them here as best as possible
+1. Linked Record relationship is accurate (one-to-many vs one-to-one)
+2. Column Names do not have any special characters not accounted for (detailed under Record Transformations)
+3. There are no two column names that would map to the same Javascript-y name. For example, "First Name" and "First Name?" would both map to "firstName" and isn't supported
 
 ## Manual Mode
 
