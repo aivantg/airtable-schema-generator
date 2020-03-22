@@ -101,17 +101,6 @@ function createRecord(table, record) {
     base(table)
       .create([{ fields: transformedRecord }])
       .then(records => {
-        const expectedLen = 1;
-        // TODO will this error ever be triggered? It seems like AirTable should catch and throw this error
-        if (records.length !== expectedLen) {
-          reject(
-            new Error(
-              `${records.length} records returned from creating 1 record. Expected: ${expectedLen}`
-            )
-          );
-          return;
-        }
-
         resolve(records[0].getId());
       })
       .catch(err => reject(err));
@@ -188,12 +177,6 @@ function updateRecord(table, id, updatedRecord) {
       }
     ])
     .then(records => {
-      const expectedLen = 1;
-      if (records.length !== expectedLen) {
-        throw new Error(
-          `${records.length} records returned from updating 1 record. Expected: ${expectedLen}`
-        );
-      }
       return records[0].id;
     })
     .catch(err => {
@@ -205,12 +188,6 @@ function deleteRecord(table, id) {
   return base(table)
     .destroy([id])
     .then(records => {
-      const expectedLen = 1;
-      if (records.length !== expectedLen) {
-        throw new Error(
-          `${records.length} records returned from deleting ${expectedLen} record(s). Expected: ${expectedLen}`
-        );
-      }
       return records[0].fields;
     })
     .catch(err => {
