@@ -74,7 +74,9 @@ Run `npm run generate-schema` to re-generate your utility functions every time y
 
 ## Important Assumptions
 
-TODO
+This package makes assumptions of how you structure your Airtable:
+1. Table names are Singular
+2. Linked Record relationship is accurate (one-to-many vs one-to-one)
 
 ## Manual Mode
 
