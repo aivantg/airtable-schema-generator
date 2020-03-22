@@ -130,6 +130,13 @@ Examples:
 - "First Name" -> "firstName"
 - "Is Public?" -> "isPublic"
 
+The current definition of the map from Human Readable to Javascript-y names is: 
+1. Remove Special Characters: `(`, `)`, ` `, `"`, `'`, `?` (more can be added through a PR)
+2. Lowercase Entire String
+3. Split on spaces
+4. Capitalize first character of each word except the first
+5. Combine
+
 #### 2. Accurate Linked Record Column Names
 
 Linked Records on Airtable are usually named something like "Author" or "Project", which would make the corresponding javascript-y name "author" or "project". The most expressive name, however, given how they come back in the API response, would be "authorId" or "projectId". 
