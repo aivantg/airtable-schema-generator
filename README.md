@@ -1,15 +1,16 @@
 # airtable-schema-generator
 
-
-An NPM package with a script to download an Airtable schema, and generate schema file, constants, and request helpers! 
+An NPM package designed to support React + Node apps that use Airtable as a backend!
 
 ## What it does
 
-This script open an electron app browser window and opens the Airtable API page for your base using your login credentials. Once the api page loads, the script generates 3 files: `schema.json`, `request.js`, and `schema.js`.
+After you install and setup the package, running `yarn generate-schema` (or `npm run generate-schema`), the script will scrape the Airtable website, download the latest schema for your app, and generate helper files. 
 
-The first file is a simplified JSON object representing your airtable base. The last two files work with the sample `airtable.js` file to create nice CRUD helpers and constants for a javascript project using Airtable. Copy over `airtable.js` to the same folder as the generated files to fully utilize the helpers. Note that the provided `airtable.js` example transforms records' column names to and from camel case and original airtable format for easy developing!
+The helper files establish abstraction barriers for the rest of your project to follow. At the lowest level is **`airtable.js`**, which contains the functions that directly interact with airtable. Next, comes **`request.js`**, which are CRUD functions generated for _every_ table in your Airtable base. Finally is **`schema.js`**, a source of truth for your airtable schema.
 
-Details on the design decisions behind the architecture can be found [here](https://www.notion.so/calblueprint/PP-Power-Airtable-Client-Side-6a1b6734af294ef88609a6d6d256ca3d).
+Besides organizing your code's interactions with airtable via helper functions, the package also makes Airtable records easier to work with! The file `schema.js` contains mappings from Airtable Column Names to a more javascript-y version of them. For example, "First Name" becomes "firstName". It's aware of linked records as well; "Project Group" (which might be a one-to-one linked record column) will become "projectGroupId". 
+
+In your codebase, you can use the javascript-y names, and the provided `airtable.js` file will automatically transform them to and from the actual Airtable column names!
 
 ## Installation
 
@@ -19,24 +20,41 @@ Details on the design decisions behind the architecture can be found [here](http
 or
 `yarn add -D airtable-schema-generator`
 
-2. Create a `.airtable-schema-generator.env` file.
+2. Choose a mode to use the package in
 
-Create a file called `.airtable-schema-generator.env` (identical to `.env.example`) in the root of your project and fill in the values with your airtable account email and password, as well as your Airtable Base ID. You can find your Base ID in the API URL: airtable.com/`{baseId}`/api/docs.
+Options: 
+1. **Auto**: You will provide your username and password in a `.airtable.env` file and the schema generator will scrape the airtable API page via an automated web browser
+2. **Auto (Headless)**: Same as above, just without a visible web browser
+3. **Manual**: You manually scrape airtable API page and save to file. No username and password needed
 
-3. Add new env file to gitignore
-
-Add the line `.airtable-schema-generator.env` to your `.gitignore` file
-
-4. Configure the input and output folder
+3. Add generator settings to your package.json file
 
 In your `package.json` add the following: 
 ```
 "airtable-schema-generator": { 
-  "input": "path/to/input/folder",
+  "baseId": "<Airtable Base ID>",
+  "mode": "<Desired Mode>",
   "output": "path/to/output/folder"
 }
 ```
-specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder
+
+The `output` folder is where you'd like your generated files to live. 
+The mode parameter accepts "auto", "auto-headless", and "manual"
+
+**Other Parameters**: 
+`input`: Only required if mode is set to Manual. Similar to `output`, specifies where `schemaRaw.json` can be found. Details below
+`defaultView`: You can specify a default view to use for Read requests. Default is "Grid View"
+`schemaMeta`: Where your metadata for schema generation lives. Details below
+
+specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder.
+
+2. If using auto or auto-headless mode, create a `.airtable.env` file.
+
+Create a file called `.airtable.env` (identical to `.env.example`) in the root of your project and fill in the values with your airtable account email and password. This information is only saved on your computer in this hidden file.
+
+3. Add new env file to gitignore
+
+Add the line `.airtable.env` to your `.gitignore` file
 
 5. Add convenient run script
 
@@ -48,13 +66,29 @@ Update your scripts object in `package.json` to include the following
 }
 ```
 
+Optional, add ` && pretty-quick` or your own prettifier command to the script to post-process the schema code. 
+
 ## Running the script
 
 Run `npm run generate-schema` to re-generate your utility functions every time your airtable base updates!
 
-## Optional Inputs
+## Manual Mode
 
-Optionally, you can create a `schemaMeta.json` file inside the folder you specify as `input`. This file lets you specify info about custom helper functions in `request.js`. Inside `schemaMeta.json` should be an object that has airtable tablenames as keys and metadata as values. Currently the only metada is `lookupFields` (explained below) but more can be added as needed. Sample Structure: 
+If you'd prefer not to use one of the two automatic modes, the schema generator will instead look for a file called `schemaRaw.json` in your specified `input` folder. In order to generate your schema, do the following: 
+1. Navigate to https://airtable.com/<YOUR_BASE_ID>/api/docs
+2. Open the Javascript console (Cmd-Option-J on Chrome for Macs)
+3. Run this command (it will copy the result to your clipboard): `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`
+4. Paste the result into your `schemaRaw.json` file
+5. Run `yarn generate-schema`
+
+You will need to repeat the steps above each time the airtable schema updates and you want to regenerate changes. If you do not update `schemaRaw.json`, the schema generation will not fail, but rather generate based on an outdated schema. 
+
+Note: It's recommended to add `schemaRaw.json` to your `.gitignore` file
+
+
+## Schema Metadata
+
+Optionally, you can add a `schemaMeta` parameter to your `airtable-schema-generator` entry in `package.json`. This object lets you specify info about custom helper functions in `request.js`.  Sample Structure: 
 
 ```
 {
@@ -69,7 +103,7 @@ Optionally, you can create a `schemaMeta.json` file inside the folder you specif
 ```
 
 ### Lookup Fields
-The `lookupFields` meta attribute specifies which fields you would like to create a custom `getRecordsByAttribute` helper function for. For example, one of the functions the above `schemaMeta.json` would create might look like:
+The `lookupFields` meta attribute specifies which fields you would like to create a custom `getRecordsByAttribute` helper function for. For example, one of the functions the above `schemaMeta` would create might look like:
 ```
 export const getAnnouncementsByProjectGroup = async value => {
   return getRecordsByAttribute(
@@ -81,13 +115,6 @@ export const getAnnouncementsByProjectGroup = async value => {
 ```
 This is in addition to the two default "get" functions created. 
 
-## Screenshots
-
-![image](https://user-images.githubusercontent.com/5147486/72138426-7286e780-3352-11ea-8582-f6010de2c390.png)
-Auto-generated `request.js` and `schema.js`
-
 ## Notes
 
-Airtable Schema Downloading Code Credit: https://github.com/cape-io/airtable-schema
-
-This generator was made specifically for this a Blueprint project. Learn more about what we do here: https://calblueprint.org/
+This generator was made originally to support Blueprint projects. Learn more about what we do here: https://calblueprint.org/
