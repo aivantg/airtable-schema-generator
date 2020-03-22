@@ -72,6 +72,10 @@ Optional, add ` && pretty-quick` or your own prettifier command to the script to
 
 Run `npm run generate-schema` to re-generate your utility functions every time your airtable base updates!
 
+## Important Assumptions
+
+TODO
+
 ## Manual Mode
 
 If you'd prefer not to use one of the two automatic modes, the schema generator will instead look for a file called `schemaRaw.json` in your specified `input` folder. In order to generate your schema, do the following: 
@@ -84,7 +88,6 @@ If you'd prefer not to use one of the two automatic modes, the schema generator 
 You will need to repeat the steps above each time the airtable schema updates and you want to regenerate changes. If you do not update `schemaRaw.json`, the schema generation will not fail, but rather generate based on an outdated schema. 
 
 Note: It's recommended to add `schemaRaw.json` to your `.gitignore` file
-
 
 ## Schema Metadata
 
@@ -114,6 +117,10 @@ export const getAnnouncementsByProjectGroup = async value => {
 };
 ```
 This is in addition to the two default "get" functions created. 
+
+## Record Transformations
+
+TODO
 
 ## Notes
 
