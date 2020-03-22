@@ -102,9 +102,8 @@ async function main(settings) {
   );
 
   // Generate outputs
-  generateSchemaFile(simplifiedSchema, settings);
   generateRequestFile(simplifiedSchema, settings);
-  generateConstantsFile(simplifiedSchema, settings);
+  generateSchemaFile(simplifiedSchema, settings);
   generateAirtableFile(settings);
   console.log('Finished Generating Files!');
 }
