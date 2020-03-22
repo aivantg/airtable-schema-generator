@@ -14,20 +14,20 @@ In your codebase, you can use the javascript-y names, and the provided `airtable
 
 ## Installation
 
-### 1) Add package as a dev dependency
+#### 1) Add package as a dev dependency
 
 `npm install --save-dev airtable-schema-generator`
 or
 `yarn add -D airtable-schema-generator`
 
-### 2) Choose a mode to use the package in
+#### 2) Choose a mode to use the package in
 
 Options: 
 1. **Auto**: You will provide your username and password in a `.airtable.env` file and the schema generator will scrape the airtable API page via an automated web browser
 2. **Auto (Headless)**: Same as above, just without a visible web browser
 3. **Manual**: You manually scrape airtable API page and save to file. No username and password needed
 
-### 3) Add generator settings to your package.json file
+#### 3) Add generator settings to your package.json file
 
 In your `package.json` add the following: 
 ```
@@ -48,15 +48,15 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 
 specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder.
 
-### 3b) If using auto or auto-headless mode, create a `.airtable.env` file.
+#### 3b) If using auto or auto-headless mode, create a `.airtable.env` file.
 
 Create a file called `.airtable.env` (identical to `.env.example`) in the root of your project and fill in the values with your airtable account email and password. This information is only saved on your computer in this hidden file.
 
-### 3c) Add new env file to gitignore
+#### 3c) Add new env file to gitignore
 
 Add the line `.airtable.env` to your `.gitignore` file
 
-### 4) Add convenient run script
+#### 4) Add convenient run script
 
 Update your scripts object in `package.json` to include the following
 
@@ -120,7 +120,28 @@ This is in addition to the two default "get" functions created.
 
 ## Record Transformations
 
-TODO
+To make working with records easier, this package includes functions that transform Airtable records after a Read action and before a Create/Update action. That transformation consists of the following: 
+
+#### 1. Javascript-y Column Names
+
+The transformation changes the column names of the record from the column name on Airtable (usually human readable) to the most likely variable name given basic Javascript conventions. 
+
+Examples: 
+- "First Name" -> "firstName"
+- "Is Public?" -> "isPublic"
+
+#### 2. Accurate Linked Record Column Names
+
+Linked Records on Airtable are usually named something like "Author" or "Project", which would make the corresponding javascript-y name "author" or "project". The most expressive name, however, given how they come back in the API response, would be "authorId" or "projectId". 
+
+Record transformation accounts this, pluralizing it when the record is marked as a one-to-many relationship
+
+#### 3. Wraps/Unwraps one-to-one Linked Record Values
+
+Even though Airtable allows you to change a linked record to a one-to-many relationship, the values from the api are still considered an array, meaning you have to unwrap a value from an array when reading from airtable and re-wrap it when writing. 
+
+Record transformation does this wrapping and unwrapping for you based on the type of relationship found on Airtable.
+
 
 ## Notes
 
