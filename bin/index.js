@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 const fetchSchema = require('../lib/scraper');
 const path = require('path');
-const { existsSync } = require('fs');
+const { existsSync, readFileSync } = require('fs');
 const {
   generateRequestFile,
   generateAirtableFile,
@@ -11,16 +11,17 @@ const {
 function readSettings() {
   const packageFile = readFileSync('./package.json');
   const settings = JSON.parse(packageFile)['airtable-schema-generator'];
+  console.log('Found settings:');
+  console.log(settings);
 
   if (!settings || !settings.output || !settings.baseId) {
     console.log(
       "Couldn't find Input Folder Path, Output Folder Path and Base ID in Settings Object:"
     );
-    console.log(settings);
     console.log(
       "Please add appropriate values for 'baseId', 'input', and 'output' to package.json under 'airtable-schema-generator' key."
     );
-    throw 'Invalid package.json settings';
+    throw new Error('Invalid package.json settings');
   }
 
   if (settings.mode === 'manual' && !settings.input) {
@@ -43,7 +44,11 @@ function simplifySchema(schema) {
     let table = schema[tableId];
     result[table.name] = {
       columns: table.columns.map(c => ({
-        type: c.type,
+        // Append relationship to foreign key type
+        type:
+          c.type === 'foreignKey'
+            ? c.type + '-' + c.typeOptions.relationship
+            : c.type,
         name: c.name
       }))
     };
@@ -53,9 +58,13 @@ function simplifySchema(schema) {
 
 async function getSchemaFromAirtable(settings) {
   if (settings.mode === 'manual') {
+    console.log(
+      '## Getting Schema using Manual mode ##\nWill look for `schemaRaw.json` in specified input folder...\n\n'
+    );
     const schema = readSchemaFromFile(settings);
+    const baseUrl = `https://airtable.com/login?continue=/${settings.baseId}/api/docs`;
+
     if (!schema) {
-      const baseUrl = `https://airtable.com/login?continue=/${settings.baseId}/api/docs`;
       throw `No Schema Found: Please create a schemaRaw.json file in the input folder.\n\n Navigate to this page in the browser: ${baseUrl} \n\nRun this script in the console:\n\n${script}\n\nThis will save the output to your clipboard. Open up schemaRaw.json and paste!`;
     } else {
       console.log('Found Schema file in `schemaRaw.json` file');
@@ -68,6 +77,15 @@ async function getSchemaFromAirtable(settings) {
       return schema;
     }
   } else {
+    const mode = settings.mode === 'auto-headless' ? settings.mode : 'auto';
+    console.log(
+      `## Getting Schema using #{mode} mode. Will fetch schema from airtable.com... ##\n${
+        mode === 'auto'
+          ? 'Launching browser...'
+          : 'Launching headless browser...'
+      }`
+    );
+
     // Load config vars
     require('dotenv-safe').config({
       path: '.airtable.env',
@@ -78,7 +96,7 @@ async function getSchemaFromAirtable(settings) {
       email: process.env.AIRTABLE_EMAIL,
       password: process.env.AIRTABLE_PASSWORD,
       baseId: settings.baseId,
-      headless: settings.mode === 'auto-headless'
+      headless: mode
     });
   }
 }
@@ -106,7 +124,6 @@ async function main(settings) {
   // Generate outputs
   generateSchemaFile(simplifiedSchema, settings);
   generateRequestFile(simplifiedSchema, settings);
-  generateConstantsFile(simplifiedSchema, settings);
   generateAirtableFile(settings);
   console.log('Finished Generating Files!');
 }
