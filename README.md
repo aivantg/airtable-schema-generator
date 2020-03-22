@@ -14,20 +14,20 @@ In your codebase, you can use the javascript-y names, and the provided `airtable
 
 ## Installation
 
-1. Add package as a dev dependency
+### 1) Add package as a dev dependency
 
 `npm install --save-dev airtable-schema-generator`
 or
 `yarn add -D airtable-schema-generator`
 
-2. Choose a mode to use the package in
+### 2) Choose a mode to use the package in
 
 Options: 
 1. **Auto**: You will provide your username and password in a `.airtable.env` file and the schema generator will scrape the airtable API page via an automated web browser
 2. **Auto (Headless)**: Same as above, just without a visible web browser
 3. **Manual**: You manually scrape airtable API page and save to file. No username and password needed
 
-3. Add generator settings to your package.json file
+### 3) Add generator settings to your package.json file
 
 In your `package.json` add the following: 
 ```
@@ -48,15 +48,15 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 
 specifying where your `schemaMetadata.json` file lives as the input folder and where you'd like to store your utility functions as the output folder.
 
-2. If using auto or auto-headless mode, create a `.airtable.env` file.
+### 3b) If using auto or auto-headless mode, create a `.airtable.env` file.
 
 Create a file called `.airtable.env` (identical to `.env.example`) in the root of your project and fill in the values with your airtable account email and password. This information is only saved on your computer in this hidden file.
 
-3. Add new env file to gitignore
+### 3c) Add new env file to gitignore
 
 Add the line `.airtable.env` to your `.gitignore` file
 
-5. Add convenient run script
+### 4) Add convenient run script
 
 Update your scripts object in `package.json` to include the following
 
