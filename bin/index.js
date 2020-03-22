@@ -5,7 +5,6 @@ const { existsSync } = require('fs');
 const {
   generateRequestFile,
   generateAirtableFile,
-  generateConstantsFile,
   generateSchemaFile
 } = require('../lib/generators');
 
