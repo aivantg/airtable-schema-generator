@@ -16,12 +16,20 @@ function readSettings() {
   console.log('Found settings:');
   console.log(settings);
 
-  if (!settings || !settings.output || !settings.baseId || !settings.mode) {
+  // Load regular config vars
+  require('dotenv-safe').config({
+    path: '.env',
+    example: path.resolve(__dirname, '../.env.example')
+  });
+
+  settings.baseId = process.env.AIRTABLE_BASE_ID;
+
+  if (!settings || !settings.output || !settings.mode) {
     console.log(
-      "Couldn't find Input Folder Path, Output Folder Path, Mode, and Base ID in Settings Object:"
+      "Couldn't find Input Folder Path, Output Folder Path, and Mode in Settings Object:"
     );
     console.log(
-      "Please add appropriate values for 'baseId', 'input', `mode`, and 'output' to package.json under 'airtable-schema-generator' key."
+      "Please add appropriate values for 'input', `mode`, and 'output' to package.json under 'airtable-schema-generator' key."
     );
     throw new Error('Invalid package.json settings');
   }
@@ -88,10 +96,10 @@ async function getSchemaFromAirtable(settings) {
       }`
     );
 
-    // Load config vars
+    // Load auto-mode config vars
     require('dotenv-safe').config({
-      path: '.airtable.env',
-      example: path.resolve(__dirname, '../.env.example')
+      path: '.env',
+      example: path.resolve(__dirname, '../.auto-env.example')
     });
 
     return await fetchSchema({
