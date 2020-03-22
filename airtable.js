@@ -31,7 +31,9 @@ const base = Airtable.base(BASE_ID);
 const fromAirtableFormat = (record, table) => {
   const columns = Columns[table];
   if (!columns) {
-    throw `Error converting record from Airtable. Could not find table: ${table}`;
+    throw new Error(
+      `Error converting record from Airtable. Could not find table: ${table}`
+    );
   }
 
   // Invert columns object
@@ -45,40 +47,51 @@ const fromAirtableFormat = (record, table) => {
 
   // Create a new object mapping each record attribute
   return Object.keys(record).reduce((obj, origColumn) => {
-    const jsFormattedName = invertedColumns[origColumn.name];
+    const jsFormattedName = invertedColumns[origColumn];
 
     if (!jsFormattedName) {
-      throw `Error converting ${table} record from Airtable. Could not find column of name ${origColumn.name} in local copy of schema. Please run the schema generator again to get updates`;
+      throw new Error(
+        `Error converting ${table} record from Airtable. Could not find column of name "${origColumn}" in local copy of schema.js. Please run the schema generator again to get updates`
+      );
     }
 
-    let value = record[origColumn.name];
-    if (origColumn.type === 'foreignKey-one') {
-      value = value[0]; // Unwrap array if it's a single foreign key relationship
+    let value = record[origColumn];
+
+    // Unwrap array if it's a single foreign key relationship
+    if (jsFormattedName.type === 'foreignKey-one') {
+      [value] = value; // Array Destructuring
     }
 
-    return { ...obj, [jsFormattedName]: value };
+    return {
+      ...obj,
+      [jsFormattedName.name]: value
+    };
   }, {});
 };
 
 const toAirtableFormat = (record, table) => {
   const columns = Columns[table];
   if (!columns) {
-    throw `Error converting record for Airtable. Could not find table: ${table}`;
+    throw new Error(
+      `Error converting record for Airtable. Could not find table: ${table}`
+    );
   }
 
-  return Object.keys(record).reduce((obj, jsFormattedColumn) => {
-    const origName = columns[jsFormattedColumn.name];
+  return Object.keys(record).reduce((obj, jsFormattedColumnName) => {
+    const origColumn = columns[jsFormattedColumnName];
 
-    if (!origName) {
-      throw `Error converting ${table} record from Airtable. Could not find column of name ${jsFormattedColumn.name} in local copy of schema. Please check your update and create calls and ensure that your column names exist. If that doesn't work, run the schema generator again to get updates.`;
+    if (!origColumn) {
+      throw new Error(
+        `Error converting ${table} record from Airtable. Could not find column of name "${jsFormattedColumnName}" in local copy of schema.js. Please check your "update" and "create" calls and ensure that your column names exist. If that doesn't work, run the schema generator again to get updates.`
+      );
     }
 
-    let value = record[jsFormattedColumn.name];
-    if (jsFormattedColumn.type === 'foreignKey-one') {
+    let value = record[jsFormattedColumnName];
+    if (origColumn.type === 'foreignKey-one') {
       value = [value]; // rewrap array if it's a single foreign key relationship
     }
 
-    return { ...obj, [origName]: value };
+    return { ...obj, [origColumn.name]: value };
   }, {});
 };
 

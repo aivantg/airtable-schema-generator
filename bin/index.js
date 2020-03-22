@@ -49,7 +49,7 @@ function simplifySchema(schema) {
         // Append relationship to foreign key type
         type:
           c.type === 'foreignKey'
-            ? c.type + c.typeOptions.relationship
+            ? c.type + '-' + c.typeOptions.relationship
             : c.type,
         name: c.name
       }))
