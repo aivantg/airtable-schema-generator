@@ -47,13 +47,18 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 
 #### 4) Create a `.env` file.
 
-Create a file called `.env` (identical to `.env.example`) in the root of your project and fill in the values with your  Airtable Base ID. 
+Create a file called `.env` in the root of your project and fill it in with the following: 
 
-If you already have a `.env`, you can add these keys to the existing `.env` file
+```
+AIRTABLE_BASE_ID=
 
-#### 4a) If using Auto mode, fill in airtable account email and password
+## Needed if using Auto mode
+AIRTABLE_EMAIL=
+AIRTABLE_PASSWORD=
+```
 
-If you're using either "auto" or "auto-headless" mode, the generator needs your airtable username and password to login. This information is only saved on your computer in this hidden file. Add the two environment keys in `.auto-env.example` to your `.env` file from abovel
+
+If you already have a `.env`, you can add these keys to the existing `.env` file. The Email and Password is only needed if using auto mode. This information is only saved on your computer in this hidden file.
 
 #### 5) Add new env file to gitignore
 
