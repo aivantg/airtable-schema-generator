@@ -26,10 +26,10 @@ function readSettings() {
 
   if (!settings || !settings.output || !settings.mode) {
     console.log(
-      "Couldn't find Input Folder Path, Output Folder Path, and Mode in Settings Object:"
+      "Couldn't find Output Folder Path, and Mode in Settings Object:"
     );
     console.log(
-      "Please add appropriate values for 'input', `mode`, and 'output' to package.json under 'airtable-schema-generator' key."
+      "Please add appropriate values for 'mode', and 'output' to package.json under 'airtable-schema-generator' key."
     );
     throw new Error('Invalid package.json settings');
   }
