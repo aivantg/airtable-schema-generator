@@ -16,24 +16,39 @@ function readSettings() {
   console.log('Found settings:');
   console.log(settings);
 
-  if (!settings || !settings.output || !settings.baseId || !settings.mode) {
+  // Load regular config vars
+  require('dotenv').config({
+    path: settings.envFileName || '.env'
+  });
+
+  if (!settings || !settings.output || !settings.mode) {
     console.log(
-      "Couldn't find Input Folder Path, Output Folder Path, Mode, and Base ID in Settings Object:"
+      "Couldn't find Output Folder Path, and Mode in Settings Object:"
     );
     console.log(
-      "Please add appropriate values for 'baseId', 'input', `mode`, and 'output' to package.json under 'airtable-schema-generator' key."
+      "Please add appropriate values for 'mode', and 'output' to package.json under 'airtable-schema-generator' key."
     );
     throw new Error('Invalid package.json settings');
   }
 
   if (settings.mode === 'manual' && !settings.input) {
-    throw 'If mode is set to manual, input folder must be specified to find `schemaRaw.json`';
+    throw new Error(
+      'If mode is set to manual, input folder must be specified to find `schemaRaw.json`'
+    );
+  }
+
+  if (!process.env.AIRTABLE_BASE_ID) {
+    console.log("Couldn't find 'AIRTABLE_BASE_ID' environment variable");
+    console.log(
+      'Please add the key to the `.env` file as specified in the README'
+    );
+    throw new Error("Couldn't find AIRTABLE_BASE_ID environment variable");
   }
 
   return {
     outputFolder: settings.output,
     inputFolder: settings.input,
-    baseId: settings.baseId,
+    baseId: process.env.AIRTABLE_BASE_ID,
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
     schemaMeta: settings.schemaMeta || {}
@@ -88,11 +103,17 @@ async function getSchemaFromAirtable(settings) {
       }`
     );
 
-    // Load config vars
-    require('dotenv-safe').config({
-      path: '.airtable.env',
-      example: path.resolve(__dirname, '../.env.example')
-    });
+    if (!process.env.AIRTABLE_EMAIL || !process.env.AIRTABLE_PASSWORD) {
+      console.log(
+        'Could not find AIRTABLE_EMAIL and AIRTABLE_PASSWORD envrionment variables'
+      );
+      console.log(
+        'Please add these variables to your `.env` file as specified in the README'
+      );
+      throw new Error(
+        "Couldn't find AIRTABLE_EMAIL or AIRTABLE_PASSWORD environment variable"
+      );
+    }
 
     return await fetchSchema({
       email: process.env.AIRTABLE_EMAIL,
@@ -132,6 +153,7 @@ async function main(settings) {
 
 try {
   const settings = readSettings();
+
   main(settings);
 } catch (e) {
   console.log(e);
