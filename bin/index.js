@@ -9,10 +9,8 @@ const {
 } = require('../lib/generators');
 
 // Load regular config vars
-require('dotenv-safe').config({
-  path: '.env',
-  example: path.resolve(__dirname, '../.env.example'),
-  allowEmptyValues: true
+require('dotenv').config({
+  path: '.env'
 });
 
 const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`;
