@@ -51,6 +51,7 @@ Create a file called `.env` in the root of your project and fill it in with the 
 
 ```
 AIRTABLE_BASE_ID=
+AIRTABLE_API_KEY=
 
 ## Needed if using Auto mode
 AIRTABLE_EMAIL=
