@@ -21,6 +21,11 @@ function readSettings() {
   console.log('Found settings:');
   console.log(settings);
 
+  // Load regular config vars
+  require('dotenv').config({
+    path: settings.envFileName || '.env'
+  });
+
   if (!settings || !settings.output || !settings.mode) {
     console.log(
       "Couldn't find Output Folder Path, and Mode in Settings Object:"
@@ -36,6 +41,7 @@ function readSettings() {
       'If mode is set to manual, input folder must be specified to find `schemaRaw.json`'
     );
   }
+
   if (!process.env.AIRTABLE_BASE_ID) {
     console.log("Couldn't find 'AIRTABLE_BASE_ID' environment variable");
     console.log(
@@ -152,6 +158,7 @@ async function main(settings) {
 
 try {
   const settings = readSettings();
+
   main(settings);
 } catch (e) {
   console.log(e);
