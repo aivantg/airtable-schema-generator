@@ -8,11 +8,6 @@ const {
   generateSchemaFile
 } = require('../lib/generators');
 
-// Load regular config vars
-require('dotenv').config({
-  path: '.env'
-});
-
 const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`;
 
 function readSettings() {
@@ -36,6 +31,7 @@ function readSettings() {
       'If mode is set to manual, input folder must be specified to find `schemaRaw.json`'
     );
   }
+
   if (!process.env.AIRTABLE_BASE_ID) {
     console.log("Couldn't find 'AIRTABLE_BASE_ID' environment variable");
     console.log(
@@ -48,6 +44,7 @@ function readSettings() {
     outputFolder: settings.output,
     inputFolder: settings.input,
     baseId: process.env.AIRTABLE_BASE_ID,
+    envFileName: settings.envFileName || '.env',
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
     schemaMeta: settings.schemaMeta || {}
@@ -152,6 +149,10 @@ async function main(settings) {
 
 try {
   const settings = readSettings();
+  // Load regular config vars
+  require('dotenv').config({
+    path: settings.envFileName
+  });
   main(settings);
 } catch (e) {
   console.log(e);
