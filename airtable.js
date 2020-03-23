@@ -15,7 +15,7 @@ const BASE_ID = 'REPLACE_BASE_ID';
 const VIEW = 'REPLACE_VIEW';
 const ENDPOINT_URL = 'https://api.airtable.com';
 
-const apiKey = process.env.REACT_APP_AIRTABLE_API_KEY;
+const apiKey = process.env.AIRTABLE_API_KEY;
 
 Airtable.configure({
   endpointUrl: ENDPOINT_URL,
