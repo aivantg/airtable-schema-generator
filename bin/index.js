@@ -8,6 +8,13 @@ const {
   generateSchemaFile
 } = require('../lib/generators');
 
+// Load regular config vars
+require('dotenv-safe').config({
+  path: '.env',
+  example: path.resolve(__dirname, '../.env.example'),
+  allowEmptyValues: true
+});
+
 const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`;
 
 function readSettings() {
@@ -15,14 +22,6 @@ function readSettings() {
   const settings = JSON.parse(packageFile)['airtable-schema-generator'];
   console.log('Found settings:');
   console.log(settings);
-
-  // Load regular config vars
-  require('dotenv-safe').config({
-    path: '.env',
-    example: path.resolve(__dirname, '../.env.example')
-  });
-
-  settings.baseId = process.env.AIRTABLE_BASE_ID;
 
   if (!settings || !settings.output || !settings.mode) {
     console.log(
@@ -35,13 +34,22 @@ function readSettings() {
   }
 
   if (settings.mode === 'manual' && !settings.input) {
-    throw 'If mode is set to manual, input folder must be specified to find `schemaRaw.json`';
+    throw new Error(
+      'If mode is set to manual, input folder must be specified to find `schemaRaw.json`'
+    );
+  }
+  if (!process.env.AIRTABLE_BASE_ID) {
+    console.log("Couldn't find 'AIRTABLE_BASE_ID' environment variable");
+    console.log(
+      'Please add the key to the `.env` file as specified in the README'
+    );
+    throw new Error("Couldn't find AIRTABLE_BASE_ID environment variable");
   }
 
   return {
     outputFolder: settings.output,
     inputFolder: settings.input,
-    baseId: settings.baseId,
+    baseId: process.env.AIRTABLE_BASE_ID,
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
     schemaMeta: settings.schemaMeta || {}
@@ -96,11 +104,17 @@ async function getSchemaFromAirtable(settings) {
       }`
     );
 
-    // Load auto-mode config vars
-    require('dotenv-safe').config({
-      path: '.env',
-      example: path.resolve(__dirname, '../.auto-env.example')
-    });
+    if (!process.env.AIRTABLE_EMAIL || !process.env.AIRTABLE_PASSWORD) {
+      console.log(
+        'Could not find AIRTABLE_EMAIL and AIRTABLE_PASSWORD envrionment variables'
+      );
+      console.log(
+        'Please add these variables to your `.env` file as specified in the README'
+      );
+      throw new Error(
+        "Couldn't find AIRTABLE_EMAIL or AIRTABLE_PASSWORD environment variable"
+      );
+    }
 
     return await fetchSchema({
       email: process.env.AIRTABLE_EMAIL,
@@ -123,7 +137,7 @@ function readSchemaFromFile(settings) {
 async function main(settings) {
   const schema = await getSchemaFromAirtable(settings);
 
-  console.log('Retrieived Airtable Schema');
+  console.log('Retrieved Airtable Schema');
   // Simplify the schema objects to just include table names and columns
   let simplifiedSchema = simplifySchema(schema);
 
