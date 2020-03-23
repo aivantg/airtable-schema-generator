@@ -16,6 +16,11 @@ function readSettings() {
   console.log('Found settings:');
   console.log(settings);
 
+  // Load regular config vars
+  require('dotenv').config({
+    path: settings.envFileName || '.env'
+  });
+
   if (!settings || !settings.output || !settings.mode) {
     console.log(
       "Couldn't find Output Folder Path, and Mode in Settings Object:"
@@ -44,7 +49,6 @@ function readSettings() {
     outputFolder: settings.output,
     inputFolder: settings.input,
     baseId: process.env.AIRTABLE_BASE_ID,
-    envFileName: settings.envFileName || '.env',
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
     schemaMeta: settings.schemaMeta || {}
@@ -149,10 +153,7 @@ async function main(settings) {
 
 try {
   const settings = readSettings();
-  // Load regular config vars
-  require('dotenv').config({
-    path: settings.envFileName
-  });
+
   main(settings);
 } catch (e) {
   console.log(e);
