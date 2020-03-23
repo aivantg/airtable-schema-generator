@@ -10,7 +10,9 @@ The helper files establish abstraction barriers for the rest of your project to 
 
 Besides organizing your code's interactions with airtable via helper functions, the package also makes Airtable records easier to work with! The file `schema.js` contains mappings from Airtable Column Names to a more javascript-y version of them. For example, "First Name" becomes "firstName". It's aware of linked records as well; "Project Group" (which might be a one-to-one linked record column) will become "projectGroupId". 
 
-In your codebase, you can use the javascript-y names, and the provided `airtable.js` file will automatically transform them to and from the actual Airtable column names!
+In your codebase, you can use the javascript-y names, and the provided `airtable.js` file will automatically transform them to and from the actual Airtable column names! See more [here](#record-transformations)
+
+Take a look at `schema.js` after you generate the files to get a sense of what the record transformations looks like for your Airtable base. Also explore `request.js` to see what functions you will be interacting with.
 
 ## Installation
 
@@ -44,6 +46,7 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 `input`: Only required if mode is set to Manual. Similar to `output`, specifies where `schemaRaw.json` can be found. Details below
 `defaultView`: You can specify a default view to use for Read requests. Default is "Grid View"
 `schemaMeta`: Where your metadata for schema generation lives. Details below
+`envFileName`: The name of your environment variable file. Default is ".env"
 
 #### 4) Create a `.env` file.
 
@@ -60,6 +63,8 @@ AIRTABLE_PASSWORD=
 
 
 If you already have a `.env`, you can add these keys to the existing `.env` file. The Email and Password is only needed if using auto mode. This information is only saved on your computer in this hidden file.
+
+If you'd like to use a different name for your environment file, pass it in in `package.json` under `envFileName`
 
 #### 5) Add new env file to gitignore
 
