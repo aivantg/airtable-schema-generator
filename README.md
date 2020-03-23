@@ -2,6 +2,21 @@
 
 An NPM package designed to support React + Node apps that use Airtable as a backend!
 
+- [What it does](#what-it-does)
+- [Installation](#installation)
+- [Running the script](#running-the-script)
+- [CRUD Functions](#crud-functions)
+- [Important Assumptions](#important-assumptions)
+- [Manual Mode](#manual-mode)
+- [Schema Metadata](#schema-metadata)
+  * [Lookup Fields](#lookup-fields)
+- [Record Transformations](#record-transformations)
+- [Custom Filters and Sorts](#custom-filters-and-sorts)
+- [Notes](#notes)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
 ## What it does
 
 After you install and setup the package, running `yarn generate-schema` (or `npm run generate-schema`), the script will scrape the Airtable website, download the latest schema for your app, and generate helper files. 
@@ -85,6 +100,24 @@ Optional, add ` && pretty-quick` or your own prettifier command to the script to
 ## Running the script
 
 Run `npm run generate-schema` to re-generate your utility functions every time your airtable base updates!
+
+## CRUD Functions
+
+The functions it generates are below. The names of the functions are based on the table names. Names are naively pluralized by seeing if the last letter is an "s" or not.
+
+`getAllRecords`: Gets all records of table
+
+`getRecordById`: Gets a record given an ID
+
+`getRecordsByIds`: Gets an array of records given an array of IDs
+
+`getRecordsByAttribute`: Gets an array of records for which a certain attribute has a certain value
+
+`createRecord`: Creates record given object containing fields to create
+
+`updateRecord`: Updates record given an ID and object containing fields to update
+
+`deleteRecord`: Deletes record given an ID
 
 ## Important Assumptions
 
