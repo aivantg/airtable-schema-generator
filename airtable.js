@@ -154,8 +154,8 @@ function getRecordsByAttribute(table, fieldType, field, sort = []) {
     .all()
     .then(records => {
       if (!records || records.length < 1) {
-        return [];
         // No need for this to throw an error, sometimes there're just no values
+        return [];
       }
 
       return records.map(record => fromAirtableFormat(record.fields, table));
