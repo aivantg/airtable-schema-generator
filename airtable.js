@@ -97,14 +97,14 @@ const toAirtableFormat = (record, table) => {
 // Given a table and a record object, create a record on Airtable.
 function createRecord(table, record) {
   const transformedRecord = toAirtableFormat(record, table);
-  return new Promise(function process(resolve, reject) {
-    base(table)
-      .create([{ fields: transformedRecord }])
-      .then(records => {
-        resolve(records[0].getId());
-      })
-      .catch(err => reject(err));
-  });
+  return base(table)
+    .create([{ fields: transformedRecord }])
+    .then(records => {
+      return records[0].getId();
+    })
+    .catch(err => {
+      throw err;
+    });
 }
 
 function getAllRecords(table, filterByFormula = '', sort = []) {
@@ -117,8 +117,7 @@ function getAllRecords(table, filterByFormula = '', sort = []) {
     .all()
     .then(records => {
       if (records === null || records.length < 1) {
-        const msg = `No record was retrieved using this ${table}.`;
-        throw new Error(msg);
+        return [];
       }
 
       return records.map(record => fromAirtableFormat(record.fields, table));
