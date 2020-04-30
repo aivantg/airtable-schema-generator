@@ -8,18 +8,18 @@
 
   If you're adding a new function: make sure you add a corresponding test (at least 1) for it in airtable.spec.js
 */
-import Airtable from 'airtable';
+import Airtable from 'REPLACE_IMPORT_LIB';
 import { Columns } from './schema';
 
-const BASE_ID = 'REPLACE_BASE_ID';
-const VIEW = 'REPLACE_VIEW';
-const ENDPOINT_URL = 'https://api.airtable.com';
+const BASE_ID = process.env.REACT_APP_AIRTABLE_BASE_ID;
 
-const apiKey = process.env.REACT_APP_AIRTABLE_API_KEY;
+const API_KEY = 'REPLACE_API_KEY';
+const ENDPOINT_URL = 'REPLACE_ENDPOINT';
+const VIEW = 'REPLACE_VIEW';
 
 Airtable.configure({
   endpointUrl: ENDPOINT_URL,
-  apiKey
+  apiKey: API_KEY,
 });
 
 const base = Airtable.base(BASE_ID);
@@ -38,7 +38,7 @@ const fromAirtableFormat = (record, table) => {
   const invertedColumns = Object.keys(columns).reduce(
     (obj, key) => ({
       ...obj,
-      [columns[key].name]: { name: key, type: columns[key].type }
+      [columns[key].name]: { name: key, type: columns[key].type },
     }),
     {}
   );
@@ -62,7 +62,7 @@ const fromAirtableFormat = (record, table) => {
 
     return {
       ...obj,
-      [jsFormattedName.name]: value
+      [jsFormattedName.name]: value,
     };
   }, {});
 };
@@ -99,10 +99,10 @@ function createRecord(table, record) {
   const transformedRecord = toAirtableFormat(record, table);
   return base(table)
     .create([{ fields: transformedRecord }])
-    .then(records => {
+    .then((records) => {
       return records[0].getId();
     })
-    .catch(err => {
+    .catch((err) => {
       throw err;
     });
 }
@@ -112,17 +112,17 @@ function getAllRecords(table, filterByFormula = '', sort = []) {
     .select({
       view: VIEW,
       filterByFormula,
-      sort
+      sort,
     })
     .all()
-    .then(records => {
+    .then((records) => {
       if (records === null || records.length < 1) {
         return [];
       }
 
-      return records.map(record => fromAirtableFormat(record.fields, table));
+      return records.map((record) => fromAirtableFormat(record.fields, table));
     })
-    .catch(err => {
+    .catch((err) => {
       throw err;
     });
 }
@@ -131,10 +131,10 @@ function getAllRecords(table, filterByFormula = '', sort = []) {
 function getRecordById(table, id) {
   return base(table)
     .find(id)
-    .then(record => {
+    .then((record) => {
       return fromAirtableFormat(record.fields, table);
     })
-    .catch(err => {
+    .catch((err) => {
       throw err;
     });
 }
@@ -148,18 +148,18 @@ function getRecordsByAttribute(table, fieldType, field, sort = []) {
     .select({
       view: VIEW,
       filterByFormula: `{${fieldType}}='${field}'`,
-      sort
+      sort,
     })
     .all()
-    .then(records => {
+    .then((records) => {
       if (!records || records.length < 1) {
         // No need for this to throw an error, sometimes there're just no values
         return [];
       }
 
-      return records.map(record => fromAirtableFormat(record.fields, table));
+      return records.map((record) => fromAirtableFormat(record.fields, table));
     })
-    .catch(err => {
+    .catch((err) => {
       throw err;
     });
 }
@@ -171,13 +171,13 @@ function updateRecord(table, id, updatedRecord) {
     .update([
       {
         id,
-        fields: transformedRecord
-      }
+        fields: transformedRecord,
+      },
     ])
-    .then(records => {
+    .then((records) => {
       return records[0].id;
     })
-    .catch(err => {
+    .catch((err) => {
       throw err;
     });
 }
@@ -185,10 +185,10 @@ function updateRecord(table, id, updatedRecord) {
 function deleteRecord(table, id) {
   return base(table)
     .destroy([id])
-    .then(records => {
+    .then((records) => {
       return records[0].fields;
     })
-    .catch(err => {
+    .catch((err) => {
       throw err;
     });
 }
@@ -199,5 +199,5 @@ export {
   getRecordById,
   getRecordsByAttribute,
   updateRecord,
-  deleteRecord
+  deleteRecord,
 };
