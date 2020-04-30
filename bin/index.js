@@ -57,7 +57,7 @@ function readSettings() {
   return {
     outputFolder: settings.output,
     inputFolder: settings.input,
-    baseId: process.env.AIRTABLE_BASE_ID,
+    baseId: process.env.REACT_APP_AIRTABLE_BASE_ID,
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
     schemaMeta: settings.schemaMeta || {},

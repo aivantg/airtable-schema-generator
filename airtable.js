@@ -194,6 +194,9 @@ function deleteRecord(table, id) {
 }
 
 export {
+  base,
+  fromAirtableFormat,
+  toAirtableFormat,
   createRecord,
   getAllRecords,
   getRecordById,
