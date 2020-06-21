@@ -107,6 +107,22 @@ function createRecord(table, record) {
     });
 }
 
+function createRecords(table, records) {
+  const transformedRecords = records.map((record) => ({
+    fields: toAirtableFormat(record, table),
+  }));
+  return base(table)
+    .create(transformedRecords)
+    .then((newRecords) => {
+      return newRecords.map((newRecord) => newRecord.getId());
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+// Given a table, get all records from Airtable
+
 function getAllRecords(table, filterByFormula = '', sort = []) {
   return base(table)
     .select({
@@ -178,7 +194,7 @@ function getRecordsByAttribute(
     });
 }
 
-// Given a table and a record object, update a record on Airtable.
+// Given a table, a record ID, and an object of fields to update, update a record on Airtable.
 function updateRecord(table, id, updatedRecord) {
   const transformedRecord = toAirtableFormat(updatedRecord, table);
   return base(table)
@@ -196,6 +212,23 @@ function updateRecord(table, id, updatedRecord) {
     });
 }
 
+// Given a table, an array of record IDs, and an array of objects of fields to update, update records on Airtable.
+function updateRecords(table, updatedRecords) {
+  const transformedRecords = updatedRecords.map((updatedRecord) => ({
+    id: updatedRecord.id,
+    fields: toAirtableFormat(updatedRecord.fields, table),
+  }));
+  return base(table)
+    .update(transformedRecords)
+    .then((records) => {
+      return records[0].id;
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+// Given a table and a record ID, delete a record on Airtable.
 function deleteRecord(table, id) {
   return base(table)
     .destroy([id])
@@ -209,9 +242,11 @@ function deleteRecord(table, id) {
 
 export {
   createRecord,
+  createRecords,
   getAllRecords,
   getRecordById,
   getRecordsByAttribute,
   updateRecord,
+  updateRecords,
   deleteRecord,
 };
