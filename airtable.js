@@ -140,7 +140,7 @@ function getRecordById(table, id) {
 }
 
 /*
-  Given the desired table, field type (column), and fieldValue ('nick wong' or 'aivant@pppower.io'),
+  Given the desired table, field type (column), and field value ('nick wong' or 'aivant@pppower.io'),
   return the associated record object.
 
   NOTE: `fieldValue` is a generic type - values can be a bit tricky. Notably, string type names must be further escaped.
