@@ -68,8 +68,8 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 Create a file called `.env` in the root of your project and fill it in with the following: 
 
 ```
-AIRTABLE_BASE_ID=
-AIRTABLE_API_KEY=
+REACT_APP_AIRTABLE_BASE_ID=
+REACT_APP_AIRTABLE_API_KEY=
 
 ## Needed if using Auto mode
 AIRTABLE_EMAIL=
