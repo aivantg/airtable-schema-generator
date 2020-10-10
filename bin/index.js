@@ -5,12 +5,12 @@ const { existsSync, readFileSync } = require('fs');
 const {
   generateRequestFile,
   generateAirtableFile,
-  generateSchemaFile
+  generateSchemaFile,
 } = require('../lib/generators');
 
 // Load regular config vars
 require('dotenv').config({
-  path: '.env'
+  path: '.env',
 });
 
 const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`;
@@ -23,7 +23,7 @@ function readSettings() {
 
   // Load regular config vars
   require('dotenv').config({
-    path: settings.envFileName || '.env'
+    path: settings.envFileName || '.env',
   });
 
   if (!settings || !settings.output || !settings.mode) {
@@ -56,7 +56,8 @@ function readSettings() {
     baseId: process.env.AIRTABLE_BASE_ID,
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
-    schemaMeta: settings.schemaMeta || {}
+    schemaMeta: settings.schemaMeta || {},
+    exceptions: settings.exceptions || {},
   };
 }
 
@@ -65,14 +66,14 @@ function simplifySchema(schema) {
   return Object.keys(schema).reduce((result, tableId) => {
     let table = schema[tableId];
     result[table.name] = {
-      columns: table.columns.map(c => ({
+      columns: table.columns.map((c) => ({
         // Append relationship to foreign key type
         type:
           c.type === 'foreignKey'
             ? c.type + '-' + c.typeOptions.relationship
             : c.type,
-        name: c.name
-      }))
+        name: c.name,
+      })),
     };
     return result;
   }, {});
@@ -124,7 +125,7 @@ async function getSchemaFromAirtable(settings) {
       email: process.env.AIRTABLE_EMAIL,
       password: process.env.AIRTABLE_PASSWORD,
       baseId: settings.baseId,
-      headless: mode.includes('headless')
+      headless: mode.includes('headless'),
     });
   }
 }
