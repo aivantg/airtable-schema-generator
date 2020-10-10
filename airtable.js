@@ -8,18 +8,18 @@
 
   If you're adding a new function: make sure you add a corresponding test (at least 1) for it in airtable.spec.js
 */
-import Airtable from 'airtable';
+import Airtable from 'REPLACE_IMPORT_LIB';
 import { Columns } from './schema';
 
-const BASE_ID = 'REPLACE_BASE_ID';
-const VIEW = 'REPLACE_VIEW';
-const ENDPOINT_URL = 'https://api.airtable.com';
+const BASE_ID = process.env.REACT_APP_AIRTABLE_BASE_ID;
 
-const apiKey = process.env.REACT_APP_AIRTABLE_API_KEY;
+const API_KEY = 'REPLACE_API_KEY';
+const ENDPOINT_URL = 'REPLACE_ENDPOINT';
+const VIEW = 'REPLACE_VIEW';
 
 Airtable.configure({
   endpointUrl: ENDPOINT_URL,
-  apiKey,
+  apiKey: API_KEY,
 });
 
 const base = Airtable.base(BASE_ID);
@@ -241,6 +241,9 @@ function deleteRecord(table, id) {
 }
 
 export {
+  base,
+  fromAirtableFormat,
+  toAirtableFormat,
   createRecord,
   createRecords,
   getAllRecords,

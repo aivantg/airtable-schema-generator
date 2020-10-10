@@ -42,22 +42,28 @@ function readSettings() {
     );
   }
 
-  if (!process.env.AIRTABLE_BASE_ID) {
-    console.log("Couldn't find 'AIRTABLE_BASE_ID' environment variable");
+  if (!process.env.REACT_APP_AIRTABLE_BASE_ID) {
+    console.log(
+      "Couldn't find 'REACT_APP_AIRTABLE_BASE_ID' environment variable"
+    );
     console.log(
       'Please add the key to the `.env` file as specified in the README'
     );
-    throw new Error("Couldn't find AIRTABLE_BASE_ID environment variable");
+    throw new Error(
+      "Couldn't find REACT_APP_AIRTABLE_BASE_ID environment variable"
+    );
   }
 
   return {
     outputFolder: settings.output,
     inputFolder: settings.input,
-    baseId: process.env.AIRTABLE_BASE_ID,
+    baseId: process.env.REACT_APP_AIRTABLE_BASE_ID,
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
     schemaMeta: settings.schemaMeta || {},
     exceptions: settings.exceptions || {},
+    airlock: settings.airlock || false,
+    overwrite: settings.overwrite === undefined ? true : settings.overwrite,
   };
 }
 
@@ -153,7 +159,11 @@ async function main(settings) {
   // Generate outputs
   generateSchemaFile(simplifiedSchema, settings);
   generateRequestFile(simplifiedSchema, settings);
-  generateAirtableFile(settings);
+
+  // Don't overwrite file if setting is false
+  if (settings.overwrite) {
+    generateAirtableFile(settings);
+  }
   console.log('Finished Generating Files!');
 }
 
