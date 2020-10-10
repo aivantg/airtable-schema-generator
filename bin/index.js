@@ -61,6 +61,7 @@ function readSettings() {
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
     schemaMeta: settings.schemaMeta || {},
+    exceptions: settings.exceptions || {},
     airlock: settings.airlock || false,
     overwrite: settings.overwrite === undefined ? true : settings.overwrite,
   };

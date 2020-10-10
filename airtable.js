@@ -107,6 +107,22 @@ function createRecord(table, record) {
     });
 }
 
+function createRecords(table, records) {
+  const transformedRecords = records.map((record) => ({
+    fields: toAirtableFormat(record, table),
+  }));
+  return base(table)
+    .create(transformedRecords)
+    .then((newRecords) => {
+      return newRecords.map((newRecord) => newRecord.getId());
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+// Given a table, get all records from Airtable
+
 function getAllRecords(table, filterByFormula = '', sort = []) {
   return base(table)
     .select({
@@ -140,14 +156,28 @@ function getRecordById(table, id) {
 }
 
 /*
-  Given the desired table, field type (column), and field ('nick wong' or 'aivant@pppower.io'),
+  Given the desired table, field type (column), and field value ('nick wong' or 'aivant@pppower.io'),
   return the associated record object.
+
+  NOTE: `fieldValue` is a generic type - values can be a bit tricky. Notably, string type names must be further escaped.
+  Usage:
+    - getStoresByStoreName("'A & S Grocery'") --> `{Store Name} = 'A & S Grocery'`
+    - getProductsByPoints(325) --> `{Points} = 325`
+    - getStoresByOpen('TRUE()') --> `{Open} = TRUE()`
 */
-function getRecordsByAttribute(table, fieldType, field, sort = []) {
+function getRecordsByAttribute(
+  table,
+  fieldType,
+  fieldValue,
+  filterByFormula = '',
+  sort = []
+) {
   return base(table)
     .select({
       view: VIEW,
-      filterByFormula: `{${fieldType}}='${field}'`,
+      filterByFormula: filterByFormula
+        ? `AND(${filterByFormula}, {${fieldType}}=${fieldValue})`
+        : `{${fieldType}}=${fieldValue}`,
       sort,
     })
     .all()
@@ -164,7 +194,7 @@ function getRecordsByAttribute(table, fieldType, field, sort = []) {
     });
 }
 
-// Given a table and a record object, update a record on Airtable.
+// Given a table, a record ID, and an object of fields to update, update a record on Airtable.
 function updateRecord(table, id, updatedRecord) {
   const transformedRecord = toAirtableFormat(updatedRecord, table);
   return base(table)
@@ -182,6 +212,23 @@ function updateRecord(table, id, updatedRecord) {
     });
 }
 
+// Given a table, an array of record IDs, and an array of objects of fields to update, update records on Airtable.
+function updateRecords(table, updatedRecords) {
+  const transformedRecords = updatedRecords.map((updatedRecord) => ({
+    id: updatedRecord.id,
+    fields: toAirtableFormat(updatedRecord.fields, table),
+  }));
+  return base(table)
+    .update(transformedRecords)
+    .then((records) => {
+      return records[0].id;
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+// Given a table and a record ID, delete a record on Airtable.
 function deleteRecord(table, id) {
   return base(table)
     .destroy([id])
@@ -198,9 +245,11 @@ export {
   fromAirtableFormat,
   toAirtableFormat,
   createRecord,
+  createRecords,
   getAllRecords,
   getRecordById,
   getRecordsByAttribute,
   updateRecord,
+  updateRecords,
   deleteRecord,
 };
