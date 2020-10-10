@@ -18,9 +18,10 @@ An NPM package designed to support React + Node apps that use Airtable as a back
   - [Schema Metadata](#schema-metadata)
     - [Lookup Fields](#lookup-fields)
   - [Record Transformations](#record-transformations)
-      - [1. Javascript-y Column Names](#1-javascript-y-column-names)
-      - [2. Accurate Linked Record Column Names](#2-accurate-linked-record-column-names)
-      - [3. Wraps/Unwraps one-to-one Linked Record Values](#3-wrapsunwraps-one-to-one-linked-record-values)
+    - [1. Javascript-y Column Names](#1-javascript-y-column-names)
+    - [2. Accurate Linked Record Column Names](#2-accurate-linked-record-column-names)
+      - [2.1 Pluralization and depluralization](#21-pluralization-and-depluralization)
+    - [3. Wraps/Unwraps one-to-one Linked Record Values](#3-wrapsunwraps-one-to-one-linked-record-values)
   - [Custom Filters and Sorts](#custom-filters-and-sorts)
   - [Notes](#notes)
 
@@ -72,6 +73,7 @@ The mode parameter accepts "auto", "auto-headless", and "manual"
 `defaultView`: You can specify a default view to use for Read requests. Default is "Grid View"
 `schemaMeta`: Where your metadata for schema generation lives. Details below
 `envFileName`: The name of your environment variable file. Default is ".env"
+`exceptions`: Specify exceptions for pluralization/depluralization of table names in `request.js`. Details below
 
 #### 4) Create a `.env` file.
 
@@ -166,6 +168,7 @@ Optionally, you can add a `schemaMeta` parameter to your `airtable-schema-genera
 ```
 
 ### Lookup Fields
+
 The `lookupFields` meta attribute specifies which fields you would like to create a custom `getRecordsByAttribute` helper function for. For example, one of the functions the above `schemaMeta` would create might look like:
 
 ```javascript
@@ -187,11 +190,12 @@ Example usage:
     - `getProductsByPoints(325)` --> `{Points} = 325`
     - `getStoresByOpen('TRUE()')` --> `{Open} = TRUE()`
 
+
 ## Record Transformations
 
 To make working with records easier, this package includes functions that transform Airtable records after a Read action and before a Create/Update action. That transformation consists of the following: 
 
-#### 1. Javascript-y Column Names
+### 1. Javascript-y Column Names
 
 The transformation changes the column names of the record from the column name on Airtable (usually human readable) to the most likely variable name given basic Javascript conventions. 
 
@@ -206,15 +210,46 @@ The current definition of the map from Human Readable to Javascript-y names is:
 4. Capitalize first character of each word except the first
 5. Combine
 
-#### 2. Accurate Linked Record Column Names
+### 2. Accurate Linked Record Column Names
 
-Linked Records on Airtable are usually named something like "Author" or "Project", which would make the corresponding javascript-y name "author" or "project". The most expressive name, however, given how they come back in the API response, would be "authorId" or "projectId". 
+Linked Records on Airtable are usually named something like "Author" or "Project", which would make the corresponding JavaScript-y name "author" or "project". The most expressive name, however, given how they come back in the API response, would be "authorId" or "projectId". 
 
-Record transformation accounts this, pluralizing it when the record is marked as a one-to-many relationship
+Record transformation accounts this, pluralizing it when the record is marked as a one-to-many relationship.
 
-#### 3. Wraps/Unwraps one-to-one Linked Record Values
+#### 2.1 Pluralization and depluralization
 
-Even though Airtable allows you to change a linked record to a one-to-many relationship, the values from the api are still considered an array, meaning you have to unwrap a value from an array when reading from airtable and re-wrap it when writing. 
+Because the function names imply whether to use a single record or multiple records, we pluralize and depluralize table names when generating `request.js`. The implementation of pluralization and depluralization is very simple - we just check if the tablename ends in the letter 's'. This means we don't make any assumptions about whether your Airtable base follows the convention of naming with singular case or plural case!
+
+However, English can be odd - for example, a table named "Feedback" would not need to be pluralized. On the other hand, "News" shouldn't be de-pluralized. Thus, you can specify exceptions in the generator settings in `package.json`. It should be in this format:
+
+```json
+"exceptions": {
+      "pluralize": ["Feedback", "Testing"],
+      "depluralize": ["News"]
+    }
+```
+
+For example, this input would have an output in `request.js` of:
+
+```javascript
+// pluralize exception:
+export const createFeedback ...
+export const createManyFeedback ...
+
+// depluralize exception
+export const createNews ...
+export const createManyNews ...
+
+// no exception
+export const createClerk ...
+export const createManyClerks ...
+```
+
+We don't support specialized pluralization or depluralization to handle cases such as "Sites Browsed".
+
+### 3. Wraps/Unwraps one-to-one Linked Record Values
+
+Even though Airtable allows you to change a linked record to a one-to-many relationship, the values from the API are still considered an array, meaning you have to unwrap a value from an array when reading from airtable and re-wrap it when writing. 
 
 Record transformation does this wrapping and unwrapping for you based on the type of relationship found on Airtable.
 
