@@ -5,12 +5,12 @@ const { existsSync, readFileSync } = require('fs');
 const {
   generateRequestFile,
   generateAirtableFile,
-  generateSchemaFile
+  generateSchemaFile,
 } = require('../lib/generators');
 
 // Load regular config vars
 require('dotenv').config({
-  path: '.env'
+  path: '.env',
 });
 
 const script = `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`;
@@ -23,7 +23,7 @@ function readSettings() {
 
   // Load regular config vars
   require('dotenv').config({
-    path: settings.envFileName || '.env'
+    path: settings.envFileName || '.env',
   });
 
   if (!settings || !settings.output || !settings.mode) {
@@ -42,21 +42,27 @@ function readSettings() {
     );
   }
 
-  if (!process.env.AIRTABLE_BASE_ID) {
-    console.log("Couldn't find 'AIRTABLE_BASE_ID' environment variable");
+  if (!process.env.REACT_APP_AIRTABLE_BASE_ID) {
+    console.log(
+      "Couldn't find 'REACT_APP_AIRTABLE_BASE_ID' environment variable"
+    );
     console.log(
       'Please add the key to the `.env` file as specified in the README'
     );
-    throw new Error("Couldn't find AIRTABLE_BASE_ID environment variable");
+    throw new Error(
+      "Couldn't find REACT_APP_AIRTABLE_BASE_ID environment variable"
+    );
   }
 
   return {
     outputFolder: settings.output,
     inputFolder: settings.input,
-    baseId: process.env.AIRTABLE_BASE_ID,
+    baseId: process.env.REACT_APP_AIRTABLE_BASE_ID,
     mode: settings.mode,
     defaultView: settings.defaultView || 'Grid view',
-    schemaMeta: settings.schemaMeta || {}
+    schemaMeta: settings.schemaMeta || {},
+    airlock: settings.airlock || false,
+    overwrite: settings.overwrite === undefined ? true : settings.overwrite,
   };
 }
 
@@ -65,14 +71,14 @@ function simplifySchema(schema) {
   return Object.keys(schema).reduce((result, tableId) => {
     let table = schema[tableId];
     result[table.name] = {
-      columns: table.columns.map(c => ({
+      columns: table.columns.map((c) => ({
         // Append relationship to foreign key type
         type:
           c.type === 'foreignKey'
             ? c.type + '-' + c.typeOptions.relationship
             : c.type,
-        name: c.name
-      }))
+        name: c.name,
+      })),
     };
     return result;
   }, {});
@@ -124,7 +130,7 @@ async function getSchemaFromAirtable(settings) {
       email: process.env.AIRTABLE_EMAIL,
       password: process.env.AIRTABLE_PASSWORD,
       baseId: settings.baseId,
-      headless: mode.includes('headless')
+      headless: mode.includes('headless'),
     });
   }
 }
@@ -152,7 +158,11 @@ async function main(settings) {
   // Generate outputs
   generateSchemaFile(simplifiedSchema, settings);
   generateRequestFile(simplifiedSchema, settings);
-  generateAirtableFile(settings);
+
+  // Don't overwrite file if setting is false
+  if (settings.overwrite) {
+    generateAirtableFile(settings);
+  }
   console.log('Finished Generating Files!');
 }
 
