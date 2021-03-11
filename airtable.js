@@ -29,8 +29,8 @@ const base = Airtable.base(BASE_ID);
 const fromAirtableFormat = (record, table) => {
   const columns = Columns[table];
   if (!columns) {
-    throw new Error(
-      `Error converting record from Airtable. Could not find table: ${table}`
+    console.log(
+      `WARNING: Could not convert record from Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
     );
   }
 
@@ -48,8 +48,8 @@ const fromAirtableFormat = (record, table) => {
     const jsFormattedName = invertedColumns[origColumn];
 
     if (!jsFormattedName) {
-      throw new Error(
-        `Error converting ${table} record from Airtable. Could not find column of name "${origColumn}" in local copy of schema.js. Please run the schema generator again to get updates`
+      console.log(
+        `WARNING: Could not convert ${table} record from Airtable. Could not find column of name "${origColumn}" in local copy of schema.js. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
       );
     }
 
@@ -70,8 +70,8 @@ const fromAirtableFormat = (record, table) => {
 const toAirtableFormat = (record, table) => {
   const columns = Columns[table];
   if (!columns) {
-    throw new Error(
-      `Error converting record for Airtable. Could not find table: ${table}`
+    console.log(
+      `WARNING: Could not convert record for Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
     );
   }
 
@@ -79,8 +79,8 @@ const toAirtableFormat = (record, table) => {
     const origColumn = columns[jsFormattedColumnName];
 
     if (!origColumn) {
-      throw new Error(
-        `Error converting ${table} record from Airtable. Could not find column of name "${jsFormattedColumnName}" in local copy of schema.js. Please check your "update" and "create" calls and ensure that your column names exist. If that doesn't work, run the schema generator again to get updates.`
+      console.log(
+        `WARNING: Could not convert ${table} record from Airtable. Could not find column of name "${jsFormattedColumnName}" in local copy of schema.js. \n\nPlease check your "update" and "create" calls and ensure that your column names exist. If that doesn't work, run the schema generator again to update.`
       );
     }
 
