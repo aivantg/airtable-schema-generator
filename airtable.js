@@ -29,10 +29,11 @@ const base = Airtable.base(BASE_ID);
 const fromAirtableFormat = (record, table) => {
   const columns = Columns[table];
   const invalidColumns = [];
-  if (!columns) {
+  if (!columns || columns == undefined) {
     console.log(
-      `WARNING [fromAirtableFormat]: Could not convert record from Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
+      `WARNING [fromAirtableFormat]:  Failed to convert record and get data from Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
     );
+    return;
   }
 
   // Invert columns object
@@ -50,7 +51,7 @@ const fromAirtableFormat = (record, table) => {
 
     if (!jsFormattedName) {
       console.log(
-        `WARNING [fromAirtableFormat]: Could not convert ${table} record from Airtable. Could not find column of name "${origColumn}" in local copy of schema.js. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
+        `WARNING [fromAirtableFormat]: Could not fully convert ${table} record from Airtable. Could not find column of name "${origColumn}" in local copy of schema.js. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
       );
       invalidColumns.push(jsFormattedName);
       return obj;
@@ -73,10 +74,11 @@ const fromAirtableFormat = (record, table) => {
 const toAirtableFormat = (record, table) => {
   const columns = Columns[table];
   const invalidColumns = [];
-  if (!columns) {
+  if (!columns || columns == undefined) {
     console.log(
-      `WARNING [toAirtableFormat]: Could not convert record for Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
+      `WARNING [toAirtableFormat]: Failed to convert record and send data to Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
     );
+    return;
   }
 
   return Object.keys(record).reduce((obj, jsFormattedColumnName) => {
