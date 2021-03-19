@@ -24,6 +24,8 @@ An NPM package designed to support React + Node apps that use Airtable as a back
     - [3. Wraps/Unwraps one-to-one Linked Record Values](#3-wrapsunwraps-one-to-one-linked-record-values)
   - [Custom Filters and Sorts](#custom-filters-and-sorts)
   - [Notes](#notes)
+  - [Known issues](#known-issues)
+    - [Schema change errors](#schema-change-errors)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
@@ -146,7 +148,7 @@ This package makes assumptions of how you structure your Airtable. We note them 
 
 If you'd prefer not to use one of the two automatic modes, the schema generator will instead look for a file called `schemaRaw.json` in your specified `input` folder. In order to generate your schema, do the following:
 
-1. Navigate to <<<<<https://airtable.com/<YOUR_BASE_ID>/api/docs>>>>>
+1. Navigate to `https://airtable.com/<YOUR_BASE_ID>/api/docs`
 2. Open the Javascript console (Cmd-Option-J on Chrome for Macs)
 3. Run this command (it will copy the result to your clipboard): `copy(_.mapValues(application.tablesById, table => _.set(_.omit(table, ['sampleRows']),'columns',_.map(table.columns, item =>_.set(item, 'foreignTable', _.get(item, 'foreignTable.id'))))));`
 4. Paste the result into your `schemaRaw.json` file
@@ -189,12 +191,13 @@ export const getAnnouncementsByProjectGroup = async value => {
 
 This is in addition to the two default "get" functions created.
 
-NOTE: For these functions, `value` is a generic type - this can be a bit tricky. Notably, string type names must be further escaped.
+NOTE: Prior to version 1.5.1, `value` was a generic type, which meant that string type names had to be further escaped.
 
-Example usage:
-    - `getStoresByStoreName("'A & S Grocery'")` --> `{Store Name} = 'A & S Grocery'`
-    - `getProductsByPoints(325)` --> `{Points} = 325`
-    - `getStoresByOpen('TRUE()')` --> `{Open} = TRUE()`
+This no longer applies - example usage:
+
+- `getStoresByStoreName("A & S Grocery")` --> `({Store Name} = "A & S Grocery")`
+- `getProductsByPoints(325)` --> `({Points} = "325")`
+- `getStoresByOpen('TRUE()')` --> `({Open} = "TRUE()")`
 
 ## Record Transformations
 
@@ -284,8 +287,35 @@ Example usage:
     '{Recently Delivered} = TRUE()',
     [{ field: 'Full Name' }]
   );
-
+```
 
 ## Notes
 
-This generator was made originally to support Blueprint projects. Learn more about what we do here: https://calblueprint.org/
+This generator was made originally to support Blueprint projects. Learn more about what we do here: <https://calblueprint.org/>
+
+## Known issues
+
+### Schema change errors
+
+In version 1.5.1 and earlier, the generated `airtable.js` would throw errors upon being unable to properly transform the Airtable call internally. It uses the local copy of `schema.js` to perform the transformations, which unfortunately caused client applications to break upon schema changes until the local copy of `schema.js` was updated - i.e the generator was re-run.
+
+List of cases by status:
+
+Cases that break the application:
+
+- Changing a column name [fixed in 1.5.2]
+- Changing a table name
+
+Cases that do not break the application:
+
+- Creating a new table [data will not be able to be accessed]
+- Creating a new column [data will not be able to be accessed]
+
+Cases we have not tested:
+
+- Removing a table
+- Removing a column
+
+The plan for fixes is to  updated to `console.log` a warning instead - HOWEVER, you will **still need to run the generator** upon schema changes to be able to actually process data for new/modified columns and tables. On the other hand, the generator will no longer throw errors causing apps to stop working.
+
+We are still working on thoroughly testing the rest of the cases and identifying fixes. Please file an issue or feel free to contribute a PR :pray:

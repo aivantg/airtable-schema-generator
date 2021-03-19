@@ -28,10 +28,12 @@ const base = Airtable.base(BASE_ID);
 
 const fromAirtableFormat = (record, table) => {
   const columns = Columns[table];
-  if (!columns) {
-    throw new Error(
-      `Error converting record from Airtable. Could not find table: ${table}`
+  const invalidColumns = [];
+  if (!columns || columns == undefined) {
+    console.log(
+      `WARNING [fromAirtableFormat]:  Failed to convert record and get data from Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
     );
+    return;
   }
 
   // Invert columns object
@@ -48,9 +50,11 @@ const fromAirtableFormat = (record, table) => {
     const jsFormattedName = invertedColumns[origColumn];
 
     if (!jsFormattedName) {
-      throw new Error(
-        `Error converting ${table} record from Airtable. Could not find column of name "${origColumn}" in local copy of schema.js. Please run the schema generator again to get updates`
+      console.log(
+        `WARNING [fromAirtableFormat]: Could not fully convert ${table} record from Airtable. Could not find column of name "${origColumn}" in local copy of schema.js. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
       );
+      invalidColumns.push(jsFormattedName);
+      return obj;
     }
 
     let value = record[origColumn];
@@ -69,19 +73,23 @@ const fromAirtableFormat = (record, table) => {
 
 const toAirtableFormat = (record, table) => {
   const columns = Columns[table];
-  if (!columns) {
-    throw new Error(
-      `Error converting record for Airtable. Could not find table: ${table}`
+  const invalidColumns = [];
+  if (!columns || columns == undefined) {
+    console.log(
+      `WARNING [toAirtableFormat]: Failed to convert record and send data to Airtable. Could not find table: ${table}. \n\nIf the Airtable schema has recently changed, please run the schema generator and try again.`
     );
+    return;
   }
 
   return Object.keys(record).reduce((obj, jsFormattedColumnName) => {
     const origColumn = columns[jsFormattedColumnName];
 
     if (!origColumn) {
-      throw new Error(
-        `Error converting ${table} record from Airtable. Could not find column of name "${jsFormattedColumnName}" in local copy of schema.js. Please check your "update" and "create" calls and ensure that your column names exist. If that doesn't work, run the schema generator again to get updates.`
+      console.log(
+        `WARNING [toAirtableFormat]: Could not convert ${table} record from Airtable. Could not find column of name "${jsFormattedColumnName}" in local copy of schema.js. \n\nPlease check your "update" and "create" calls and ensure that your column names exist. If that doesn't work, run the schema generator again to update.`
       );
+      invalidColumns.push(origColumn);
+      return obj;
     }
 
     let value = record[jsFormattedColumnName];
